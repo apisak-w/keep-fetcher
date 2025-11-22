@@ -77,7 +77,7 @@ def get_category(description):
             
     return 'Other'
 
-def process_expenses(input_file='keep_notes.csv', output_file='expenses_processed.csv'):
+def process_expenses(input_file='outputs/keep_notes.csv', output_file='outputs/expenses_processed.csv'):
     print(f"Reading {input_file}...")
     try:
         df = pd.read_csv(input_file)

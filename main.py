@@ -57,8 +57,9 @@ def main():
     print(df.head())
     
     # Optional: Save to CSV
-    df.to_csv("keep_notes.csv", index=False)
-    print("\nSaved to keep_notes.csv")
+    output_file = "outputs/keep_notes.csv"
+    df.to_csv(output_file, index=False)
+    print(f"\nSaved to {output_file}")
 
 if __name__ == "__main__":
     main()

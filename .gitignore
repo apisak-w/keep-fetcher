@@ -22,5 +22,5 @@ coverage.xml
 .DS_Store
 
 # Project specific
-keep_notes.csv
+outputs/
 *.csv

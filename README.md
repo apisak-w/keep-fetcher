@@ -67,7 +67,7 @@ When you run the script, you will be prompted to enter your Google email. Then, 
 
 The script will:
 1.  Print the first 5 notes to the console.
-2.  Save all notes to a file named `keep_notes.csv` in the current directory.
+2.  Save all notes to `outputs/keep_notes.csv`.
 
 ## Expense Processor
 
@@ -78,12 +78,12 @@ If you use Google Keep to track expenses (e.g., notes titled "November 22th, 202
 ```
 
 This will:
-1.  Read `keep_notes.csv`.
+1.  Read `outputs/keep_notes.csv`.
 2.  Filter for notes with the "expense" label.
 3.  Parse the date from the note title.
 4.  Extract unchecked items (starting with `☐`) from the text. Checked items (`☑`) are ignored.
 5.  Automatically categorize expenses (Food, Transport, Utilities, etc.) based on keywords.
-6.  Save the structured data to `expenses_processed.csv` with columns: `date`, `category`, `description`, `amount`, `uncleared`.
+6.  Save the structured data to `outputs/expenses_processed.csv` with columns: `date`, `category`, `description`, `amount`, `uncleared`.
 
 ## Disclaimer
 
