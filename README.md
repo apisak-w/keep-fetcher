@@ -81,8 +81,9 @@ This will:
 1.  Read `keep_notes.csv`.
 2.  Filter for notes with the "expense" label.
 3.  Parse the date from the note title.
-4.  Extract description, amount, and status (cleared/uncleared) from the text.
-5.  Save the structured data to `expenses_processed.csv`.
+4.  Extract unchecked items (starting with `☐`) from the text. Checked items (`☑`) are ignored.
+5.  Automatically categorize expenses (Food, Transport, Utilities, etc.) based on keywords.
+6.  Save the structured data to `expenses_processed.csv` with columns: `date`, `category`, `description`, `amount`, `uncleared`.
 
 ## Disclaimer
 
