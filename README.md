@@ -69,6 +69,21 @@ The script will:
 1.  Print the first 5 notes to the console.
 2.  Save all notes to a file named `keep_notes.csv` in the current directory.
 
+## Expense Processor
+
+If you use Google Keep to track expenses (e.g., notes titled "November 22th, 2025" with items like "☐ Food 150"), you can use the expense processor to extract this data.
+
+```bash
+./venv/bin/python3 expense_processor.py
+```
+
+This will:
+1.  Read `keep_notes.csv`.
+2.  Filter for notes with the "expense" label.
+3.  Parse the date from the note title.
+4.  Extract description, amount, and status (cleared/uncleared) from the text.
+5.  Save the structured data to `expenses_processed.csv`.
+
 ## Disclaimer
 
 This project uses `gkeepapi`, which is an unofficial client for the Google Keep API. It is not supported by Google and may break if Google changes their internal API. Use at your own risk.
