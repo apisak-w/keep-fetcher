@@ -1,0 +1,74 @@
+# Google Keep Fetcher
+
+A Python CLI tool to fetch your Google Keep notes and export them to a Pandas DataFrame and CSV file. This tool uses the unofficial `gkeepapi` library.
+
+## Features
+
+-   Fetches all notes from Google Keep.
+-   Supports multiple authentication methods to bypass "BadAuthentication" errors.
+-   Exports data to a Pandas DataFrame.
+-   Saves notes to `keep_notes.csv`.
+-   Extracts note metadata: Title, Text, Created/Updated timestamps, Labels, Archived/Trashed status, and URL.
+
+## Prerequisites
+
+-   Python 3.7+
+-   A Google Account
+
+## Installation
+
+1.  **Clone the repository** (if applicable) or navigate to the project directory.
+
+2.  **Create a virtual environment:**
+    ```bash
+    python3 -m venv venv
+    ```
+
+3.  **Activate the virtual environment:**
+    -   On macOS/Linux:
+        ```bash
+        source venv/bin/activate
+        ```
+    -   On Windows:
+        ```bash
+        .\venv\Scripts\activate
+        ```
+
+4.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+## Usage
+
+Run the main script:
+
+```bash
+./venv/bin/python3 main.py
+```
+
+### Authentication
+
+When you run the script, you will be prompted to enter your Google email. Then, you will be presented with three authentication options:
+
+1.  **App Password**: Try this first if you have an App Password generated. Note that this often fails with `BadAuthentication` due to Google's security checks.
+2.  **Master Token**: If you already have a master token (starting with `aas_et/`), you can enter it here.
+3.  **OAuth Token (Recommended)**: Use this "Alternative Flow" if option #1 fails.
+    -   Open `https://accounts.google.com/EmbeddedSetup` in your browser (Incognito mode recommended).
+    -   Log in to your Google Account.
+    -   Open Developer Tools (F12 or Right-click -> Inspect).
+    -   Go to the **Application** tab (or **Storage** tab in Firefox) -> **Cookies**.
+    -   Find the cookie named `oauth_token`.
+    -   Copy its value and paste it into the terminal when prompted.
+
+**Note**: After a successful login, the master token is securely stored in your system's keyring, so you won't need to re-authenticate every time.
+
+## Output
+
+The script will:
+1.  Print the first 5 notes to the console.
+2.  Save all notes to a file named `keep_notes.csv` in the current directory.
+
+## Disclaimer
+
+This project uses `gkeepapi`, which is an unofficial client for the Google Keep API. It is not supported by Google and may break if Google changes their internal API. Use at your own risk.
