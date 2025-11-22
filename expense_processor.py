@@ -19,25 +19,32 @@ def parse_expense_line(line):
     """
     Extracts description and amount from a line.
     Expected format: "☐ Description Amount [UNCLEARED]"
+    Only processes lines starting with ☐ (unchecked). Ignores ☑ (checked).
     """
+    stripped_line = line.strip()
+    
+    # Strict filter: Must start with ☐
+    if not stripped_line.startswith("☐"):
+        return None
+
     # Remove check box and leading/trailing whitespace
-    clean_line = line.replace("☐", "").replace("☑", "").strip()
+    clean_line = stripped_line.replace("☐", "", 1).strip()
     
     if not clean_line:
         return None
 
     # Regex to find the last number in the string which is likely the amount
-    # This handles cases like "Food 159" or "Monthly car payment 18975"
-    # It assumes the amount is at the end or near the end (before optional UNCLEARED)
+    # We use greedy match (.*) for description to ensure we capture everything 
+    # up to the LAST number in the line.
     
     # Pattern: 
-    # ^(.*?)        -> Group 1: Description (lazy match from start)
+    # ^(.*)         -> Group 1: Description (greedy match)
     # \s+           -> Separator space
     # (\d+(?:\.\d+)?) -> Group 2: Amount (integer or float)
     # (?:\s+UNCLEARED)? -> Optional UNCLEARED tag
     # .*$           -> Any remaining characters
     
-    match = re.search(r'^(.*?)\s+(\d+(?:\.\d+)?)(?:\s+UNCLEARED)?.*$', clean_line, re.IGNORECASE)
+    match = re.search(r'^(.*)\s+(\d+(?:\.\d+)?)(?:\s+UNCLEARED)?.*$', clean_line, re.IGNORECASE)
     
     if match:
         description = match.group(1).strip()
@@ -50,6 +57,25 @@ def parse_expense_line(line):
         }
     
     return None
+
+def get_category(description):
+    """Categorizes expense based on description keywords."""
+    desc_lower = description.lower()
+    
+    categories = {
+        'Food': ['food', 'lunch', 'dinner', 'breakfast', 'snack', 'meal', 'drink', 'coffee'],
+        'Transport': ['mrt', 'bts', 'taxi', 'motorcycle', 'bus', 'rabbit', 'grab', 'uber', 'train', 'flight'],
+        'Utilities': ['mobile', 'top-up', 'icloud', 'internet', 'bill', 'subscription', 'netflix', 'spotify'],
+        'Shopping': ['book', 'gift', 'clothes', 'shoes', 'bag', 'amazon', 'lazada', 'shopee'],
+        'Personal': ['haircut', 'badminton', 'gym', 'sport', 'massage', 'spa', 'doctor', 'medicine'],
+        'Housing/Car': ['car', 'rent', 'condo', 'electricity', 'water'],
+    }
+    
+    for category, keywords in categories.items():
+        if any(keyword in desc_lower for keyword in keywords):
+            return category
+            
+    return 'Other'
 
 def process_expenses(input_file='keep_notes.csv', output_file='expenses_processed.csv'):
     print(f"Reading {input_file}...")
@@ -81,11 +107,10 @@ def process_expenses(input_file='keep_notes.csv', output_file='expenses_processe
             if item:
                 processed_data.append({
                     'date': note_date,
+                    'category': get_category(item['description']),
                     'description': item['description'],
                     'amount': item['amount'],
-                    'uncleared': item['uncleared'],
-                    'original_note_title': row['title'],
-                    'note_id': row['id']
+                    'uncleared': item['uncleared']
                 })
 
     if not processed_data:
