@@ -63,12 +63,13 @@ def get_category(description):
     desc_lower = description.lower()
     
     categories = {
-        'Food': ['food', 'lunch', 'dinner', 'breakfast', 'snack', 'meal', 'drink', 'coffee'],
-        'Transport': ['mrt', 'bts', 'taxi', 'motorcycle', 'bus', 'rabbit', 'grab', 'uber', 'train', 'flight'],
-        'Utilities': ['mobile', 'top-up', 'icloud', 'internet', 'bill', 'subscription', 'netflix', 'spotify'],
+        'Food': ['food', 'lunch', 'dinner', 'breakfast', 'snack', 'meal', 'drink'],
+        'Transport': ['mrt', 'bts', 'taxi', 'motorcycle', 'bus', 'rabbit', 'grab', 'uber', 'train', 'flight', 'mrt', 'tsubaru'],
+        'Utilities': ['mobile', 'top-up', 'mobile top up' 'icloud', 'internet', 'bill', 'subscription', 'netflix', 'spotify'],
         'Shopping': ['book', 'gift', 'clothes', 'shoes', 'bag', 'amazon', 'lazada', 'shopee'],
+        'Entertainment': ['movie', 'cinema', 'game', 'concert', 'ticket', 'show', 'party', 'bar', 'club', 'youtube', 'disney'],
         'Personal': ['haircut', 'badminton', 'gym', 'sport', 'massage', 'spa', 'doctor', 'medicine'],
-        'Housing/Car': ['car', 'rent', 'condo', 'electricity', 'water'],
+        'Housing/Car': ['car', 'rent', 'condo', 'electricity', 'water', 'home', 'house'],
     }
     
     for category, keywords in categories.items():
