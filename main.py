@@ -1,6 +1,6 @@
 import getpass
 import sys
-from src.keep_client import KeepClient
+from libs.keep_client import KeepClient
 
 def main():
     print("Google Keep Fetcher")
