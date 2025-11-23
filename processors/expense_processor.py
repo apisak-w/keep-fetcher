@@ -63,12 +63,12 @@ def get_category(description):
     desc_lower = description.lower()
     
     categories = {
+        'Shopping': ['book', 'gift', 'clothes', 'shoes', 'bag', 'amazon', 'lazada', 'shopee', 'sofa', 'tuya', 'adapter', 'phone', 'belt', 'coffee table', 'battery', 'key', 'ladle', 'lamp', 'perfume', 'rug', 'stairs'],
         'Food': ['food', 'lunch', 'dinner', 'breakfast', 'snack', 'meal', 'drink'],
         'Transport': ['mrt', 'bts', 'taxi', 'motorcycle', 'bus', 'rabbit', 'grab', 'uber', 'train', 'flight', 'mrt', 'tsubaru', 'airport', 'express', 'two row car', 'arl', 'srt'],
         'Utilities': ['mobile', 'top-up', 'mobile top up', 'icloud', 'internet', 'bill', 'subscription', 'netflix', 'spotify'],
-        'Shopping': ['book', 'gift', 'clothes', 'shoes', 'bag', 'amazon', 'lazada', 'shopee', 'sofa', 'tuya', 'adapter', 'phone', 'belt'],
         'Entertainment': ['movie', 'cinema', 'game', 'concert', 'ticket', 'show', 'party', 'bar', 'club', 'youtube', 'disney', 'badminton'],
-        'Personal': ['haircut', 'gym', 'sport', 'massage', 'spa', 'doctor', 'medicine', 'shirt', 'shorts', 'toothpaste'],
+        'Personal': ['haircut', 'gym', 'sport', 'massage', 'spa', 'doctor', 'medicine', 'shirt', 'shorts', 'toothpaste', 'driving', 'medical'],
         'Housing/Car': ['car', 'rent', 'condo', 'electricity', 'water', 'home', 'house'],
     }
     
