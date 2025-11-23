@@ -74,7 +74,7 @@ The script will:
 If you use Google Keep to track expenses (e.g., notes titled "November 22th, 2025" with items like "☐ Food 150"), you can use the expense processor to extract this data.
 
 ```bash
-./venv/bin/python3 expense_processor.py
+./venv/bin/python3 processors/expense_processor.py
 ```
 
 This will:
