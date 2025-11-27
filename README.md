@@ -97,7 +97,12 @@ You can automate the fetching and processing using the included GitHub Action wo
     -   Share your target Google Sheet with the Service Account's email address.
 2.  **GitHub Secrets**:
     -   Go to your repository Settings -> Secrets and variables -> Actions.
-    -   Add `GOOGLE_MASTER_TOKEN`: Your Google Keep Master Token (starts with `aas_et/`).
+    -   Add `GOOGLE_OAUTH_TOKEN`: Your Google OAuth Token (from the `oauth_token` cookie).
+        -   To get this:
+            1.  Open `https://accounts.google.com/EmbeddedSetup` in Incognito.
+            2.  Log in.
+            3.  Open DevTools -> Application -> Cookies.
+            4.  Copy the value of `oauth_token`.
     -   Add `GOOGLE_SERVICE_ACCOUNT_JSON`: The content of your Service Account JSON key file.
     -   Add `GOOGLE_SHEET_ID`: The ID of your target Google Sheet (found in the URL).
 

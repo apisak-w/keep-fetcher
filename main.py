@@ -13,14 +13,24 @@ def main():
     
     # Try to login without password first (using token)
     if not client.login(username):
-        # Check for master token in environment variable (for CI/CD)
+        # Check for OAuth token in environment variable (Option #3)
+        env_oauth_token = os.environ.get("GOOGLE_OAUTH_TOKEN")
+        # Check for master token in environment variable (Option #2)
         env_master_token = os.environ.get("GOOGLE_MASTER_TOKEN")
-        if env_master_token:
+        
+        if env_oauth_token:
+            print("Using OAuth Token from environment variable...")
+            if client.login_with_oauth_token(username, env_oauth_token):
+                pass # Auth successful
+            else:
+                print("Authentication with environment OAuth token failed.")
+                sys.exit(1)
+        elif env_master_token:
             print("Using Master Token from environment variable...")
             if client.authenticate_with_token(username, env_master_token):
-                pass # Auth successful, proceed to sync
+                pass # Auth successful
             else:
-                print("Authentication with environment token failed.")
+                print("Authentication with environment Master token failed.")
                 sys.exit(1)
         else:
         # If that fails, ask for password or master token
