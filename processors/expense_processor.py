@@ -123,13 +123,16 @@ def process_expenses(input_file='outputs/keep_notes.csv', output_file='outputs/e
     # Sort by date descending
     result_df = result_df.sort_values(by='date', ascending=False)
     
-    print(f"Extracted {len(result_df)} expense items.")
+    print(f"Extracted {len(result_df)} expense items.\"")
     # Save to CSV
     output_file = 'outputs/expenses_processed.csv'
+    import os
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    df.to_csv(output_file, index=False)
-    print(f"Processed {len(df)} expense items.")
+    result_df.to_csv(output_file, index=False)
     print(f"Saved to {output_file}")
+    
+    print("\nSample Data:")
+    print(result_df.head())
 
 if __name__ == "__main__":
     process_expenses()
