@@ -19,7 +19,7 @@ class KeepClient:
         token = keyring.get_password("google-keep-fetcher", username)
         
         if token and not password:
-            print(f"Attempting to resume session for {username}...")
+            print("Attempting to resume session...")
             try:
                 self.keep.authenticate(username, token)
                 print("Session resumed successfully.")
@@ -29,7 +29,7 @@ class KeepClient:
                 # If resume fails, we need a password to re-authenticate
         
         if password:
-            print(f"Logging in as {username}...")
+            print("Logging in...")
             try:
                 # Use gpsoauth directly to get the master token
                 # This avoids the 'Keep.login' deprecation warning
@@ -73,7 +73,7 @@ class KeepClient:
         """Authenticates using a manually provided master token."""
         self.username = username
         try:
-            print(f"Authenticating with provided master token for {username}...")
+            print("Authenticating with provided master token...")
             self.keep.authenticate(username, token)
             keyring.set_password("google-keep-fetcher", username, token)
             print("Authentication successful. Token saved.")
@@ -85,7 +85,7 @@ class KeepClient:
     def login_with_oauth_token(self, username, oauth_token):
         """Exchanges an oauth_token for a master token and authenticates."""
         self.username = username
-        print(f"Exchanging oauth_token for master token for {username}...")
+        print("Exchanging oauth_token for master token...")
         try:
             import gpsoauth
             import gkeepapi
