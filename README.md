@@ -91,10 +91,10 @@ You can automate the fetching and processing using the included GitHub Action wo
 
 ### Prerequisites
 1.  **Google Service Account**:
-    -   Create a Service Account in Google Cloud Console.
-    -   Enable the **Google Sheets API**.
-    -   Download the JSON key file.
-    -   Share your target Google Sheet with the Service Account's email address.
+    -   **Create Account**: Go to [Google Cloud Console](https://console.cloud.google.com/), create a project, and create a Service Account.
+    -   **Enable APIs**: Search for and enable **"Google Sheets API"** and **"Google Drive API"**.
+    -   **Download Key**: Create and download a JSON key for your Service Account.
+    -   **Grant Access**: Open your target Google Sheet, click **Share**, and paste the **Service Account's email address** (found in the JSON file, usually ends in `@...iam.gserviceaccount.com`). Give it **Editor** permission.
 2.  **GitHub Secrets**:
     -   Go to your repository Settings -> Secrets and variables -> Actions.
     -   Add `GOOGLE_ACCOUNT_EMAIL`: Your Google Account email address.
