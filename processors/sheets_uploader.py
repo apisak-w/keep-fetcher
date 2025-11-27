@@ -1,64 +1,182 @@
-import gspread
-import pandas as pd
 import os
 import sys
+import json
+import gspread
+import pandas as pd
 
-def upload_to_sheets(csv_file='outputs/expenses_processed.csv'):
-    # 1. Get credentials from environment variable
-    # The JSON key should be stored in GOOGLE_SERVICE_ACCOUNT_JSON env var
-    service_account_info = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
-    sheet_id = os.environ.get('GOOGLE_SHEET_ID')
 
-    if not service_account_info:
+# ============================================================================
+# Configuration
+# ============================================================================
+
+INPUT_FILE = 'outputs/expenses_processed.csv'
+
+
+# ============================================================================
+# Authentication Functions
+# ============================================================================
+
+def get_credentials():
+    """
+    Get Google Service Account credentials from environment.
+    
+    Returns:
+        dict: Service account credentials
+        
+    Raises:
+        SystemExit: If credentials are not found
+    """
+    service_account_json = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
+    
+    if not service_account_json:
         print("Error: GOOGLE_SERVICE_ACCOUNT_JSON environment variable not set.")
         sys.exit(1)
+    
+    try:
+        return json.loads(service_account_json)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing service account JSON: {e}")
+        sys.exit(1)
 
+
+def get_sheet_id():
+    """
+    Get Google Sheet ID from environment.
+    
+    Returns:
+        str: Google Sheet ID
+        
+    Raises:
+        SystemExit: If sheet ID is not found
+    """
+    sheet_id = os.environ.get('GOOGLE_SHEET_ID')
+    
     if not sheet_id:
         print("Error: GOOGLE_SHEET_ID environment variable not set.")
         sys.exit(1)
+    
+    return sheet_id
 
+
+def authenticate_gspread(credentials):
+    """
+    Authenticate with Google Sheets API.
+    
+    Args:
+        credentials: Service account credentials dict
+        
+    Returns:
+        gspread.Client: Authenticated gspread client
+        
+    Raises:
+        SystemExit: If authentication fails
+    """
     print("Authenticating with Google Sheets...")
     try:
-        # Save the JSON content to a temporary file because gspread expects a filename or dict
-        # We can pass the dict directly if we parse it, but let's try to parse it as dict first
-        import json
-        creds_dict = json.loads(service_account_info)
-        gc = gspread.service_account_from_dict(creds_dict)
+        return gspread.service_account_from_dict(credentials)
     except Exception as e:
         print(f"Error authenticating: {e}")
         sys.exit(1)
 
+
+# ============================================================================
+# Sheet Operations
+# ============================================================================
+
+def open_worksheet(client, sheet_id):
+    """
+    Open the first worksheet of a Google Sheet.
+    
+    Args:
+        client: Authenticated gspread client
+        sheet_id: Google Sheet ID
+        
+    Returns:
+        gspread.Worksheet: The first worksheet
+        
+    Raises:
+        SystemExit: If sheet cannot be opened
+    """
     print(f"Opening sheet with ID: {sheet_id}")
     try:
-        sh = gc.open_by_key(sheet_id)
-        # Assuming we want to update the first worksheet
-        worksheet = sh.sheet1 
+        spreadsheet = client.open_by_key(sheet_id)
+        return spreadsheet.sheet1
     except Exception as e:
         print(f"Error opening sheet: {e}")
         sys.exit(1)
 
+
+def load_csv_data(csv_file):
+    """
+    Load data from CSV file.
+    
+    Args:
+        csv_file: Path to CSV file
+        
+    Returns:
+        pd.DataFrame: Loaded data
+        
+    Raises:
+        SystemExit: If file cannot be read
+    """
     print(f"Reading data from {csv_file}...")
     try:
         df = pd.read_csv(csv_file)
+        # Replace NaN with empty string for Sheets compatibility
+        return df.fillna('')
     except FileNotFoundError:
         print(f"Error: {csv_file} not found.")
         sys.exit(1)
 
-    # Replace NaN with empty string for Sheets compatibility
-    df = df.fillna('')
 
+def update_worksheet(worksheet, df):
+    """
+    Update worksheet with DataFrame contents.
+    
+    Args:
+        worksheet: gspread worksheet to update
+        df: DataFrame with data to upload
+        
+    Raises:
+        SystemExit: If update fails
+    """
     print("Clearing existing data...")
     worksheet.clear()
-
+    
     print("Updating sheet with new data...")
-    # update([dataframe]) is available in recent gspread versions, 
-    # but let's use a more standard list of lists approach for compatibility
     try:
-        worksheet.update([df.columns.values.tolist()] + df.values.tolist())
+        # Convert DataFrame to list of lists (header + rows)
+        data = [df.columns.values.tolist()] + df.values.tolist()
+        worksheet.update(data)
         print("Sheet updated successfully!")
     except Exception as e:
         print(f"Error updating sheet: {e}")
         sys.exit(1)
+
+
+# ============================================================================
+# Main Function
+# ============================================================================
+
+def upload_to_sheets(csv_file=INPUT_FILE):
+    """
+    Upload CSV data to Google Sheets.
+    
+    Args:
+        csv_file: Path to CSV file to upload
+    """
+    # Get credentials and sheet ID
+    credentials = get_credentials()
+    sheet_id = get_sheet_id()
+    
+    # Authenticate and open worksheet
+    client = authenticate_gspread(credentials)
+    worksheet = open_worksheet(client, sheet_id)
+    
+    # Load and upload data
+    df = load_csv_data(csv_file)
+    update_worksheet(worksheet, df)
+
 
 if __name__ == "__main__":
     upload_to_sheets()
