@@ -85,6 +85,29 @@ This will:
 5.  Automatically categorize expenses (Food, Transport, Utilities, etc.) based on keywords.
 6.  Save the structured data to `outputs/expenses_processed.csv` with columns: `date`, `category`, `description`, `amount`, `uncleared`.
 
+## GitHub Actions & Google Sheets
+
+You can automate the fetching and processing using the included GitHub Action workflow.
+
+### Prerequisites
+1.  **Google Service Account**:
+    -   Create a Service Account in Google Cloud Console.
+    -   Enable the **Google Sheets API**.
+    -   Download the JSON key file.
+    -   Share your target Google Sheet with the Service Account's email address.
+2.  **GitHub Secrets**:
+    -   Go to your repository Settings -> Secrets and variables -> Actions.
+    -   Add `GOOGLE_MASTER_TOKEN`: Your Google Keep Master Token (starts with `aas_et/`).
+    -   Add `GOOGLE_SERVICE_ACCOUNT_JSON`: The content of your Service Account JSON key file.
+    -   Add `GOOGLE_SHEET_ID`: The ID of your target Google Sheet (found in the URL).
+
+### Triggering the Workflow
+1.  Go to the **Actions** tab in your repository.
+2.  Select **Manual Keep Fetcher**.
+3.  Click **Run workflow**.
+4.  Enter your Google Account email.
+5.  The workflow will fetch notes, process expenses, and update your Google Sheet.
+
 ## Disclaimer
 
 This project uses `gkeepapi`, which is an unofficial client for the Google Keep API. It is not supported by Google and may break if Google changes their internal API. Use at your own risk.

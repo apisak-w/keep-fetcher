@@ -1,5 +1,6 @@
 import getpass
 import sys
+import os
 from libs.keep_client import KeepClient
 
 def main():
@@ -12,6 +13,16 @@ def main():
     
     # Try to login without password first (using token)
     if not client.login(username):
+        # Check for master token in environment variable (for CI/CD)
+        env_master_token = os.environ.get("GOOGLE_MASTER_TOKEN")
+        if env_master_token:
+            print("Using Master Token from environment variable...")
+            if client.authenticate_with_token(username, env_master_token):
+                pass # Auth successful, proceed to sync
+            else:
+                print("Authentication with environment token failed.")
+                sys.exit(1)
+        else:
         # If that fails, ask for password or master token
         print("\nAuthentication failed with stored token.")
         print("Choose an authentication method:")

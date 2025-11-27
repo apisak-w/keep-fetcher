@@ -1,3 +1,4 @@
 gkeepapi
 keyring
 pandas
+gspread
