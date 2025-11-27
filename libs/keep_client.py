@@ -100,6 +100,12 @@ class KeepClient:
             import gpsoauth
             import gkeepapi
             
+            import urllib.parse
+            import secrets
+            
+            # Ensure token is unquoted just in case
+            oauth_token = urllib.parse.unquote(oauth_token)
+            
             device_id = str(gkeepapi.get_mac())
             
             response = gpsoauth.exchange_token(username, oauth_token, device_id)
@@ -108,6 +114,12 @@ class KeepClient:
             if "Error" in response:
                 print(f"Token exchange with device_id failed: {response.get('Error')}. Retrying with empty device_id...")
                 response = gpsoauth.exchange_token(username, oauth_token, None)
+
+            # If that also fails, try with a random 16-char hex string (simulating Android ID)
+            if "Error" in response:
+                print(f"Token exchange with empty device_id failed: {response.get('Error')}. Retrying with random Android ID...")
+                random_id = secrets.token_hex(8) # 16 chars
+                response = gpsoauth.exchange_token(username, oauth_token, random_id)
 
             if "Error" in response:
                 print(f"Token exchange failed: {response.get('Error')}")
