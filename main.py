@@ -98,14 +98,12 @@ def main():
     df = client.get_notes_as_dataframe()
     
     print(f"\nFound {len(df)} notes.")
-    print("\nFirst 5 notes:")
-    print(df.head())
     
     # Optional: Save to CSV
     output_file = "outputs/keep_notes.csv"
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     df.to_csv(output_file, index=False)
-    print(f"\nSaved to {output_file}")
+    print(f"Saved to {output_file}")
 
 if __name__ == "__main__":
     main()

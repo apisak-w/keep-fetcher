@@ -130,9 +130,6 @@ def process_expenses(input_file='outputs/keep_notes.csv', output_file='outputs/e
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     result_df.to_csv(output_file, index=False)
     print(f"Saved to {output_file}")
-    
-    print("\nSample Data:")
-    print(result_df.head())
 
 if __name__ == "__main__":
     process_expenses()
