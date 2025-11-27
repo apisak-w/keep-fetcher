@@ -11,11 +11,11 @@ def upload_to_sheets(csv_file='outputs/expenses_processed.csv'):
 
     if not service_account_info:
         print("Error: GOOGLE_SERVICE_ACCOUNT_JSON environment variable not set.")
-        return
+        sys.exit(1)
 
     if not sheet_id:
         print("Error: GOOGLE_SHEET_ID environment variable not set.")
-        return
+        sys.exit(1)
 
     print("Authenticating with Google Sheets...")
     try:
@@ -26,7 +26,7 @@ def upload_to_sheets(csv_file='outputs/expenses_processed.csv'):
         gc = gspread.service_account_from_dict(creds_dict)
     except Exception as e:
         print(f"Error authenticating: {e}")
-        return
+        sys.exit(1)
 
     print(f"Opening sheet with ID: {sheet_id}")
     try:
@@ -35,14 +35,14 @@ def upload_to_sheets(csv_file='outputs/expenses_processed.csv'):
         worksheet = sh.sheet1 
     except Exception as e:
         print(f"Error opening sheet: {e}")
-        return
+        sys.exit(1)
 
     print(f"Reading data from {csv_file}...")
     try:
         df = pd.read_csv(csv_file)
     except FileNotFoundError:
         print(f"Error: {csv_file} not found.")
-        return
+        sys.exit(1)
 
     # Replace NaN with empty string for Sheets compatibility
     df = df.fillna('')
@@ -58,6 +58,7 @@ def upload_to_sheets(csv_file='outputs/expenses_processed.csv'):
         print("Sheet updated successfully!")
     except Exception as e:
         print(f"Error updating sheet: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     upload_to_sheets()
