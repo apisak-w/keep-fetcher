@@ -1,12 +1,22 @@
-import getpass
-import sys
 import os
+import sys
+import getpass
 from libs.keep_client import KeepClient
 
-def main():
-    print("Google Keep Fetcher")
-    print("-------------------")
 
+# ============================================================================
+# Configuration
+# ============================================================================
+
+OUTPUT_FILE = "outputs/keep_notes.csv"
+
+
+# ============================================================================
+# Authentication Functions
+# ============================================================================
+
+def get_username():
+    """Get username from environment or user input."""
     username = os.environ.get("GOOGLE_ACCOUNT_EMAIL")
     
     # In CI environment, email must be provided via environment variable
@@ -17,93 +27,123 @@ def main():
     if not username:
         username = input("Email: ")
     
+    return username
+
+
+def authenticate_with_env_tokens(client, username):
+    """
+    Attempt authentication using environment variables.
+    
+    Returns:
+        bool: True if authentication succeeded, False otherwise
+    """
+    oauth_token = os.environ.get("GOOGLE_OAUTH_TOKEN")
+    master_token = os.environ.get("GOOGLE_MASTER_TOKEN")
+    auth_method = os.environ.get("AUTH_METHOD", "").lower()
+
+    # Try explicit auth method first
+    if auth_method == 'master' and master_token:
+        print("Using Master Token (explicitly selected)...")
+        return client.authenticate_with_token(username, master_token)
+    
+    if (auth_method == 'oauth' or not auth_method) and oauth_token:
+        print("Using OAuth Token...")
+        return client.login_with_oauth_token(username, oauth_token)
+    
+    # Fallback to master token if available
+    if master_token:
+        print("Using Master Token (fallback)...")
+        return client.authenticate_with_token(username, master_token)
+    
+    return False
+
+
+def authenticate_interactively(client, username):
+    """Prompt user for authentication credentials."""
+    print("\nAuthentication failed with stored token.")
+    print("Choose an authentication method:")
+    print("1. App Password (may fail with BadAuthentication)")
+    print("2. Master Token (starts with 'aas_et/')")
+    print("3. OAuth Token (Alternative Flow - Recommended if #1 fails)")
+    
+    choice = input("Enter choice (1/2/3): ").strip()
+    
+    if choice == '1':
+        password = getpass.getpass("App Password: ")
+        return client.login(username, password)
+    
+    elif choice == '2':
+        token = getpass.getpass("Master Token: ")
+        return client.authenticate_with_token(username, token)
+    
+    elif choice == '3':
+        print("\n--- Alternative OAuth Flow ---")
+        print("1. Open this URL in your browser (incognito recommended):")
+        print("   https://accounts.google.com/EmbeddedSetup")
+        print("2. Log in with your Google account.")
+        print("3. Open Developer Tools (F12) -> Application -> Cookies.")
+        print("4. Find the cookie named 'oauth_token' and copy its value.")
+        oauth_token = getpass.getpass("Paste 'oauth_token' here: ")
+        return client.login_with_oauth_token(username, oauth_token)
+    
+    else:
+        print("Invalid choice. Exiting.")
+        sys.exit(1)
+
+
+def authenticate(client, username):
+    """
+    Authenticate the client using various methods.
+    
+    Priority:
+    1. Stored token (keyring)
+    2. Environment variables
+    3. Interactive input
+    """
+    # Try stored token first
+    if client.login(username):
+        return
+    
+    # Try environment variables
+    if authenticate_with_env_tokens(client, username):
+        return
+    
+    # In CI, we can't do interactive auth
+    if os.environ.get("CI"):
+        print("Error: No valid authentication token found in CI environment.")
+        sys.exit(1)
+    
+    # Interactive authentication
+    if not authenticate_interactively(client, username):
+        print("Authentication failed. Exiting.")
+        sys.exit(1)
+
+
+# ============================================================================
+# Main Function
+# ============================================================================
+
+def main():
+    """Main entry point for Google Keep Fetcher."""
+    print("Google Keep Fetcher")
+    print("-------------------")
+    
+    # Get username and authenticate
+    username = get_username()
     client = KeepClient()
+    authenticate(client, username)
     
-    # Try to login without password first (using token)
-    if not client.login(username):
-        # Check for OAuth token in environment variable (Option #3)
-        env_oauth_token = os.environ.get("GOOGLE_OAUTH_TOKEN")
-        # Check for master token in environment variable (Option #2)
-        env_master_token = os.environ.get("GOOGLE_MASTER_TOKEN")
-        
-        # Check for explicit auth method preference
-        auth_method = os.environ.get("AUTH_METHOD", "").lower()
-
-        if auth_method == 'master' and env_master_token:
-            print("Using Master Token (explicitly selected)...")
-            if client.authenticate_with_token(username, env_master_token):
-                pass
-            else:
-                print("Authentication with Master token failed.")
-                sys.exit(1)
-        elif (auth_method == 'oauth' or not auth_method) and env_oauth_token:
-            print("Using OAuth Token...")
-            if client.login_with_oauth_token(username, env_oauth_token):
-                pass
-            else:
-                print("Authentication with OAuth token failed.")
-                sys.exit(1)
-        elif env_master_token:
-            # Fallback to master if oauth not present/selected and master is present
-            print("Using Master Token (fallback)...")
-            if client.authenticate_with_token(username, env_master_token):
-                pass
-            else:
-                print("Authentication with Master token failed.")
-                sys.exit(1)
-        else:
-            # In CI environment, we cannot ask for input
-            if os.environ.get("CI"):
-                print("Error: No valid authentication token (GOOGLE_OAUTH_TOKEN or GOOGLE_MASTER_TOKEN) found in CI environment.")
-                sys.exit(1)
-
-            # If that fails, ask for password or master token
-            print("\nAuthentication failed with stored token.")
-            print("Choose an authentication method:")
-            print("1. App Password (may fail with BadAuthentication)")
-            print("2. Master Token (starts with 'aas_et/')")
-            print("3. OAuth Token (Alternative Flow - Recommended if #1 fails)")
-            
-            choice = input("Enter choice (1/2/3): ").strip()
-            
-            if choice == '1':
-                password = getpass.getpass("App Password: ")
-                if not client.login(username, password):
-                    print("Authentication failed. Exiting.")
-                    sys.exit(1)
-            elif choice == '2':
-                token = getpass.getpass("Master Token: ")
-                if not client.authenticate_with_token(username, token):
-                     print("Authentication with master token failed. Exiting.")
-                     sys.exit(1)
-            elif choice == '3':
-                print("\n--- Alternative OAuth Flow ---")
-                print("1. Open this URL in your browser (incognito recommended):")
-                print("   https://accounts.google.com/EmbeddedSetup")
-                print("2. Log in with your Google account.")
-                print("3. Open Developer Tools (F12) -> Application -> Cookies.")
-                print("4. Find the cookie named 'oauth_token' and copy its value.")
-                oauth_token = getpass.getpass("Paste 'oauth_token' here: ")
-                
-                if not client.login_with_oauth_token(username, oauth_token):
-                    print("Authentication with oauth token failed. Exiting.")
-                    sys.exit(1)
-            else:
-                print("Invalid choice. Exiting.")
-                sys.exit(1)
-
+    # Sync and fetch notes
     client.sync()
-    
     print("\nFetching notes...")
     df = client.get_notes_as_dataframe()
-    
     print(f"\nFound {len(df)} notes.")
     
-    # Optional: Save to CSV
-    output_file = "outputs/keep_notes.csv"
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    df.to_csv(output_file, index=False)
-    print(f"Saved to {output_file}")
+    # Save to CSV
+    os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
+    df.to_csv(OUTPUT_FILE, index=False)
+    print(f"Saved to {OUTPUT_FILE}")
+
 
 if __name__ == "__main__":
     main()
