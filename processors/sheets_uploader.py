@@ -129,6 +129,46 @@ def load_csv_data(csv_file):
         sys.exit(1)
 
 
+def apply_column_formatting(worksheet, df):
+    """
+    Apply formatting to specific columns in the worksheet.
+    
+    Args:
+        worksheet: gspread worksheet to format
+        df: DataFrame with the data (used to determine column positions and row count)
+    """
+    if len(df) == 0:
+        return
+    
+    column_formats = {
+        'date': {
+            'numberFormat': {
+                'type': 'DATE',
+                'pattern': 'yyyy-mm-dd'
+            }
+        },
+        # Add more column formats here as needed
+        # 'amount': {
+        #     'numberFormat': {
+        #         'type': 'CURRENCY',
+        #         'pattern': '$#,##0.00'
+        #     }
+        # },
+    }
+    
+    for col_name, format_spec in column_formats.items():
+        if col_name in df.columns:
+            print(f"Formatting '{col_name}' column...")
+            col_index = df.columns.tolist().index(col_name)
+            col_letter = chr(65 + col_index)  # A=65 in ASCII
+            cell_range = f"{col_letter}2:{col_letter}{len(df) + 1}"
+            
+            try:
+                worksheet.format(cell_range, format_spec)
+            except Exception as e:
+                print(f"Warning: Could not format column '{col_name}': {e}")
+
+
 def update_worksheet(worksheet, df):
     """
     Update worksheet with DataFrame contents.
@@ -149,20 +189,8 @@ def update_worksheet(worksheet, df):
         data = [df.columns.values.tolist()] + df.values.tolist()
         worksheet.update(data)
         
-        # Format date column (assuming it's the first column)
-        if len(df) > 0 and 'date' in df.columns:
-            print("Formatting date column...")
-            date_col_index = df.columns.tolist().index('date')
-            # Format as date (column A = index 0, so we add 1 for Sheets API)
-            col_letter = chr(65 + date_col_index)  # A=65 in ASCII
-            date_range = f"{col_letter}2:{col_letter}{len(df) + 1}"
-            
-            worksheet.format(date_range, {
-                "numberFormat": {
-                    "type": "DATE",
-                    "pattern": "yyyy-mm-dd"
-                }
-            })
+        # Apply column formatting
+        apply_column_formatting(worksheet, df)
         
         print("Sheet updated successfully!")
     except Exception as e:
