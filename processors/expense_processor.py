@@ -123,7 +123,7 @@ def process_expenses(input_file='outputs/keep_notes.csv', output_file='outputs/e
     # Sort by date descending
     result_df = result_df.sort_values(by='date', ascending=False)
     
-    print(f"Extracted {len(result_df)} expense items.\"")
+    print(f"Extracted {len(result_df)} expense items.")
     # Save to CSV
     output_file = 'outputs/expenses_processed.csv'
     import os
