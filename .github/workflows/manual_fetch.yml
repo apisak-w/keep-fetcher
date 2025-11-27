@@ -6,7 +6,7 @@ on:
       auth_method:
         description: 'Authentication Method'
         required: true
-        default: 'oauth'
+        default: 'master'
         type: choice
         options:
         - oauth
