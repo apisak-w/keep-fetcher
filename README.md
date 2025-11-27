@@ -97,6 +97,7 @@ You can automate the fetching and processing using the included GitHub Action wo
     -   Share your target Google Sheet with the Service Account's email address.
 2.  **GitHub Secrets**:
     -   Go to your repository Settings -> Secrets and variables -> Actions.
+    -   Add `GOOGLE_ACCOUNT_EMAIL`: Your Google Account email address.
     -   Add `GOOGLE_OAUTH_TOKEN`: Your Google OAuth Token (from the `oauth_token` cookie).
         -   To get this:
             1.  Open `https://accounts.google.com/EmbeddedSetup` in Incognito.
@@ -110,8 +111,7 @@ You can automate the fetching and processing using the included GitHub Action wo
 1.  Go to the **Actions** tab in your repository.
 2.  Select **Manual Keep Fetcher**.
 3.  Click **Run workflow**.
-4.  Enter your Google Account email.
-5.  The workflow will fetch notes, process expenses, and update your Google Sheet.
+4.  The workflow will fetch notes, process expenses, and update your Google Sheet.
 
 ## Disclaimer
 

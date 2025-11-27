@@ -7,7 +7,9 @@ def main():
     print("Google Keep Fetcher")
     print("-------------------")
 
-    username = input("Email: ")
+    username = os.environ.get("GOOGLE_ACCOUNT_EMAIL")
+    if not username:
+        username = input("Email: ")
     
     client = KeepClient()
     
