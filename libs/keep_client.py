@@ -104,6 +104,11 @@ class KeepClient:
             
             response = gpsoauth.exchange_token(username, oauth_token, device_id)
             
+            # If that fails, try with empty device_id
+            if "Error" in response:
+                print(f"Token exchange with device_id failed: {response.get('Error')}. Retrying with empty device_id...")
+                response = gpsoauth.exchange_token(username, oauth_token, None)
+
             if "Error" in response:
                 print(f"Token exchange failed: {response.get('Error')}")
                 return False
