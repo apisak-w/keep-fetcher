@@ -2,6 +2,15 @@ name: Manual Keep Fetcher
 
 on:
   workflow_dispatch:
+    inputs:
+      auth_method:
+        description: 'Authentication Method'
+        required: true
+        default: 'oauth'
+        type: choice
+        options:
+        - oauth
+        - master
 
 jobs:
   fetch-and-process:
@@ -24,7 +33,9 @@ jobs:
     - name: Run Keep Fetcher (Main)
       env:
         GOOGLE_OAUTH_TOKEN: ${{ secrets.GOOGLE_OAUTH_TOKEN }}
+        GOOGLE_MASTER_TOKEN: ${{ secrets.GOOGLE_MASTER_TOKEN }}
         GOOGLE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_ACCOUNT_EMAIL }}
+        AUTH_METHOD: ${{ github.event.inputs.auth_method }}
       run: |
         python main.py
 

@@ -26,19 +26,30 @@ def main():
         # Check for master token in environment variable (Option #2)
         env_master_token = os.environ.get("GOOGLE_MASTER_TOKEN")
         
-        if env_oauth_token:
-            print("Using OAuth Token from environment variable...")
-            if client.login_with_oauth_token(username, env_oauth_token):
-                pass # Auth successful
+        # Check for explicit auth method preference
+        auth_method = os.environ.get("AUTH_METHOD", "").lower()
+
+        if auth_method == 'master' and env_master_token:
+            print("Using Master Token (explicitly selected)...")
+            if client.authenticate_with_token(username, env_master_token):
+                pass
             else:
-                print("Authentication with environment OAuth token failed.")
+                print("Authentication with Master token failed.")
+                sys.exit(1)
+        elif (auth_method == 'oauth' or not auth_method) and env_oauth_token:
+            print("Using OAuth Token...")
+            if client.login_with_oauth_token(username, env_oauth_token):
+                pass
+            else:
+                print("Authentication with OAuth token failed.")
                 sys.exit(1)
         elif env_master_token:
-            print("Using Master Token from environment variable...")
+            # Fallback to master if oauth not present/selected and master is present
+            print("Using Master Token (fallback)...")
             if client.authenticate_with_token(username, env_master_token):
-                pass # Auth successful
+                pass
             else:
-                print("Authentication with environment Master token failed.")
+                print("Authentication with Master token failed.")
                 sys.exit(1)
         else:
             # In CI environment, we cannot ask for input
