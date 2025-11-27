@@ -1,85 +1,127 @@
-import pandas as pd
+import os
 import re
 from datetime import datetime
+import pandas as pd
+
+
+# ============================================================================
+# Configuration
+# ============================================================================
+
+EXPENSE_CATEGORIES = {
+    'Shopping': [
+        'book', 'gift', 'clothes', 'shoes', 'bag', 'amazon', 'lazada', 
+        'shopee', 'sofa', 'tuya', 'adapter', 'phone', 'belt', 'coffee table', 
+        'battery', 'key', 'ladle', 'lamp', 'perfume', 'rug', 'stairs', 
+        'home appliance', 'housewares', 'shirt', 'shorts', 'toothpaste'
+    ],
+    'Food': [
+        'food', 'lunch', 'dinner', 'breakfast', 'snack', 'meal', 'drink'
+    ],
+    'Transport': [
+        'mrt', 'bts', 'taxi', 'motorcycle', 'bus', 'rabbit', 'grab', 'uber', 
+        'train', 'flight', 'tsubaru', 'airport', 'express', 'two row car', 
+        'arl', 'srt'
+    ],
+    'Utilities': [
+        'mobile', 'top-up', 'mobile top up', 'icloud', 'internet', 'bill', 
+        'subscription', 'netflix', 'spotify'
+    ],
+    'Entertainment': [
+        'movie', 'cinema', 'game', 'concert', 'ticket', 'show', 'party', 
+        'bar', 'club', 'youtube', 'disney', 'badminton'
+    ],
+    'Personal': [
+        'haircut', 'gym', 'sport', 'massage', 'spa', 'doctor', 'medicine', 
+        'driving', 'medical', 'personal care'
+    ],
+    'Housing/Car': [
+        'car', 'rent', 'condo', 'electricity', 'water', 'home', 'house'
+    ],
+}
+
+INPUT_FILE = 'outputs/keep_notes.csv'
+OUTPUT_FILE = 'outputs/expenses_processed.csv'
+
+
+# ============================================================================
+# Parsing Functions
+# ============================================================================
 
 def parse_date(date_str):
-    """
-    Parses date string like "November 22th, 2025" into a datetime object.
-    Handles ordinal suffixes (st, nd, rd, th).
-    """
+    """Parse date string like 'November 22th, 2025' into a date object."""
     try:
-        # Remove ordinal suffixes (st, nd, rd, th) from the day
-        # Regex looks for a digit followed by st, nd, rd, or th, and removes the suffix
+        # Remove ordinal suffixes (st, nd, rd, th)
         clean_date_str = re.sub(r'(\d+)(st|nd|rd|th)', r'\1', date_str)
         return datetime.strptime(clean_date_str, "%B %d, %Y").date()
     except ValueError:
         return None
 
+
 def parse_expense_line(line):
     """
-    Extracts description and amount from a line.
+    Extract description and amount from an expense line.
+    
     Expected format: "☐ Description Amount [UNCLEARED]"
-    Only processes lines starting with ☐ (unchecked). Ignores ☑ (checked).
+    Only processes unchecked items (☐). Ignores checked items (☑).
+    
+    Returns:
+        dict or None: {'description': str, 'amount': float, 'uncleared': bool}
     """
     stripped_line = line.strip()
     
-    # Strict filter: Must start with ☐
+    # Only process unchecked items
     if not stripped_line.startswith("☐"):
         return None
 
-    # Remove check box and leading/trailing whitespace
+    # Remove checkbox and clean
     clean_line = stripped_line.replace("☐", "", 1).strip()
-    
     if not clean_line:
         return None
 
-    # Regex to find the last number in the string which is likely the amount
-    # We use greedy match (.*) for description to ensure we capture everything 
-    # up to the LAST number in the line.
+    # Extract description and amount
+    # Pattern: Description + Amount + Optional UNCLEARED
+    match = re.search(
+        r'^(.*)\\s+(\\d+(?:\\.\\d+)?)(?:\\s+UNCLEARED)?.*$', 
+        clean_line, 
+        re.IGNORECASE
+    )
     
-    # Pattern: 
-    # ^(.*)         -> Group 1: Description (greedy match)
-    # \s+           -> Separator space
-    # (\d+(?:\.\d+)?) -> Group 2: Amount (integer or float)
-    # (?:\s+UNCLEARED)? -> Optional UNCLEARED tag
-    # .*$           -> Any remaining characters
-    
-    match = re.search(r'^(.*)\s+(\d+(?:\.\d+)?)(?:\s+UNCLEARED)?.*$', clean_line, re.IGNORECASE)
-    
-    if match:
-        description = match.group(1).strip()
-        amount = float(match.group(2))
-        is_uncleared = "UNCLEARED" in clean_line.upper()
-        return {
-            'description': description,
-            'amount': amount,
-            'uncleared': is_uncleared
-        }
-    
-    return None
+    if not match:
+        return None
+        
+    return {
+        'description': match.group(1).strip(),
+        'amount': float(match.group(2)),
+        'uncleared': "UNCLEARED" in clean_line.upper()
+    }
 
-def get_category(description):
-    """Categorizes expense based on description keywords."""
+
+def categorize_expense(description):
+    """Categorize expense based on keywords in description."""
     desc_lower = description.lower()
     
-    categories = {
-        'Shopping': ['book', 'gift', 'clothes', 'shoes', 'bag', 'amazon', 'lazada', 'shopee', 'sofa', 'tuya', 'adapter', 'phone', 'belt', 'coffee table', 'battery', 'key', 'ladle', 'lamp', 'perfume', 'rug', 'stairs', 'home appliance', 'housewares', 'shirt', 'shorts', 'toothpaste'],
-        'Food': ['food', 'lunch', 'dinner', 'breakfast', 'snack', 'meal', 'drink'],
-        'Transport': ['mrt', 'bts', 'taxi', 'motorcycle', 'bus', 'rabbit', 'grab', 'uber', 'train', 'flight', 'mrt', 'tsubaru', 'airport', 'express', 'two row car', 'arl', 'srt'],
-        'Utilities': ['mobile', 'top-up', 'mobile top up', 'icloud', 'internet', 'bill', 'subscription', 'netflix', 'spotify'],
-        'Entertainment': ['movie', 'cinema', 'game', 'concert', 'ticket', 'show', 'party', 'bar', 'club', 'youtube', 'disney', 'badminton'],
-        'Personal': ['haircut', 'gym', 'sport', 'massage', 'spa', 'doctor', 'medicine', 'driving', 'medical', 'personal care'],
-        'Housing/Car': ['car', 'rent', 'condo', 'electricity', 'water', 'home', 'house'],
-    }
-    
-    for category, keywords in categories.items():
+    for category, keywords in EXPENSE_CATEGORIES.items():
         if any(keyword in desc_lower for keyword in keywords):
             return category
             
     return 'Other'
 
-def process_expenses(input_file='outputs/keep_notes.csv', output_file='outputs/expenses_processed.csv'):
+
+# ============================================================================
+# Main Processing
+# ============================================================================
+
+def process_expenses(input_file=INPUT_FILE, output_file=OUTPUT_FILE):
+    """
+    Process expense notes from Keep and export to CSV.
+    
+    Args:
+        input_file: Path to keep_notes.csv
+        output_file: Path to save processed expenses
+    """
     print(f"Reading {input_file}...")
+    
     try:
         df = pd.read_csv(input_file)
     except FileNotFoundError:
@@ -87,28 +129,23 @@ def process_expenses(input_file='outputs/keep_notes.csv', output_file='outputs/e
         return
 
     # Filter for expense notes
-    # Assuming 'labels' column contains string representation of list like "['💸 expense']"
     expense_notes = df[df['labels'].str.contains('expense', case=False, na=False)]
-    
     print(f"Found {len(expense_notes)} expense notes.")
     
+    # Process each expense note
     processed_data = []
-
-    for index, row in expense_notes.iterrows():
+    for _, row in expense_notes.iterrows():
         note_date = parse_date(row['title'])
-        
         if not note_date:
-            # print(f"Skipping note with invalid date title: {row['title']}")
             continue
             
-        lines = str(row['text']).split('\n')
-        
-        for line in lines:
+        # Parse each line in the note
+        for line in str(row['text']).split('\\n'):
             item = parse_expense_line(line)
             if item:
                 processed_data.append({
                     'date': note_date,
-                    'category': get_category(item['description']),
+                    'category': categorize_expense(item['description']),
                     'description': item['description'],
                     'amount': item['amount'],
                     'uncleared': item['uncleared']
@@ -118,18 +155,17 @@ def process_expenses(input_file='outputs/keep_notes.csv', output_file='outputs/e
         print("No expense items extracted.")
         return
 
+    # Create DataFrame and sort
     result_df = pd.DataFrame(processed_data)
-    
-    # Sort by date descending
     result_df = result_df.sort_values(by='date', ascending=False)
     
-    print(f"Extracted {len(result_df)} expense items.")
     # Save to CSV
-    output_file = 'outputs/expenses_processed.csv'
-    import os
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     result_df.to_csv(output_file, index=False)
+    
+    print(f"Extracted {len(result_df)} expense items.")
     print(f"Saved to {output_file}")
+
 
 if __name__ == "__main__":
     process_expenses()
