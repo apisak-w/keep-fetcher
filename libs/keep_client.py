@@ -16,8 +16,12 @@ class KeepClient:
         self.username = username
         
         # Try to resume from a saved token
-        token = keyring.get_password("google-keep-fetcher", username)
-        
+        token = None
+        try:
+            token = keyring.get_password("google-keep-fetcher", username)
+        except Exception as e:
+            print(f"Keyring access failed (expected in CI): {e}")
+
         if token and not password:
             print("Attempting to resume session...")
             try:
@@ -59,8 +63,11 @@ class KeepClient:
                     return False
                     
                 self.keep.authenticate(username, token)
-                keyring.set_password("google-keep-fetcher", username, token)
-                print("Login successful. Token saved.")
+                try:
+                    keyring.set_password("google-keep-fetcher", username, token)
+                    print("Login successful. Token saved.")
+                except Exception as e:
+                    print(f"Login successful, but failed to save token to keyring: {e}")
                 return True
             except Exception as e:
                 print(f"Login failed: {e}")
@@ -75,8 +82,11 @@ class KeepClient:
         try:
             print("Authenticating with provided master token...")
             self.keep.authenticate(username, token)
-            keyring.set_password("google-keep-fetcher", username, token)
-            print("Authentication successful. Token saved.")
+            try:
+                keyring.set_password("google-keep-fetcher", username, token)
+                print("Authentication successful. Token saved.")
+            except Exception as e:
+                print(f"Authentication successful, but failed to save token to keyring: {e}")
             return True
         except Exception as e:
             print(f"Authentication failed: {e}")
