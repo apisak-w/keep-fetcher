@@ -148,6 +148,22 @@ def update_worksheet(worksheet, df):
         # Convert DataFrame to list of lists (header + rows)
         data = [df.columns.values.tolist()] + df.values.tolist()
         worksheet.update(data)
+        
+        # Format date column (assuming it's the first column)
+        if len(df) > 0 and 'date' in df.columns:
+            print("Formatting date column...")
+            date_col_index = df.columns.tolist().index('date')
+            # Format as date (column A = index 0, so we add 1 for Sheets API)
+            col_letter = chr(65 + date_col_index)  # A=65 in ASCII
+            date_range = f"{col_letter}2:{col_letter}{len(df) + 1}"
+            
+            worksheet.format(date_range, {
+                "numberFormat": {
+                    "type": "DATE",
+                    "pattern": "yyyy-mm-dd"
+                }
+            })
+        
         print("Sheet updated successfully!")
     except Exception as e:
         print(f"Error updating sheet: {e}")
