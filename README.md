@@ -98,6 +98,7 @@ You can automate the fetching and processing using the included GitHub Action wo
 2.  **GitHub Secrets**:
     -   Go to your repository Settings -> Secrets and variables -> Actions.
     -   Add `GOOGLE_ACCOUNT_EMAIL`: Your Google Account email address.
+    -   (Optional) Add `GOOGLE_AUTH_METHOD`: Set to `oauth` (default) or `master` to enforce an authentication method.
     -   Add `GOOGLE_OAUTH_TOKEN`: Your Google OAuth Token (from the `oauth_token` cookie).
         -   To get this:
             1.  Open `https://accounts.google.com/EmbeddedSetup` in Incognito.

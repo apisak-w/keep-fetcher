@@ -35,7 +35,7 @@ jobs:
         GOOGLE_OAUTH_TOKEN: ${{ secrets.GOOGLE_OAUTH_TOKEN }}
         GOOGLE_MASTER_TOKEN: ${{ secrets.GOOGLE_MASTER_TOKEN }}
         GOOGLE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_ACCOUNT_EMAIL }}
-        AUTH_METHOD: ${{ github.event.inputs.auth_method }}
+        AUTH_METHOD: ${{ secrets.GOOGLE_AUTH_METHOD || github.event.inputs.auth_method }}
       run: |
         python main.py
 
