@@ -82,7 +82,7 @@ def parse_expense_line(line):
     # Extract description and amount
     # Pattern: Description + Amount + Optional UNCLEARED
     match = re.search(
-        r'^(.*)\\s+(\\d+(?:\\.\\d+)?)(?:\\s+UNCLEARED)?.*$', 
+        r'^(.*)\s+(\d+(?:\.\d+)?)(?:\s+UNCLEARED)?.*$', 
         clean_line, 
         re.IGNORECASE
     )
@@ -140,7 +140,7 @@ def process_expenses(input_file=INPUT_FILE, output_file=OUTPUT_FILE):
             continue
             
         # Parse each line in the note
-        for line in str(row['text']).split('\\n'):
+        for line in str(row['text']).split('\n'):
             item = parse_expense_line(line)
             if item:
                 processed_data.append({
