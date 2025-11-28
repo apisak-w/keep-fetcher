@@ -2,11 +2,8 @@ import os
 import sys
 import getpass
 from libs.keep_client import KeepClient
-from config.constants import (
-    OUTPUT_DIR,
-    KEEP_NOTES_CSV,
-    ENV
-)
+from config.constants import OUTPUT_DIR, KEEP_NOTES_CSV
+from config.env import ENV
 
 
 # ============================================================================

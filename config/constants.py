@@ -4,8 +4,6 @@ Configuration constants for Google Keep Fetcher.
 This module contains all configuration values used across the application.
 """
 
-from config.env import ENV
-
 
 # ============================================================================
 # File Paths

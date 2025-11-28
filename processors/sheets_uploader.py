@@ -3,11 +3,8 @@ import sys
 import json
 import gspread
 import pandas as pd
-from config.constants import (
-    EXPENSES_PROCESSED_CSV,
-    COLUMN_FORMATS,
-    ENV
-)
+from config.constants import EXPENSES_PROCESSED_CSV, COLUMN_FORMATS
+from config.env import ENV
 
 
 # ============================================================================
