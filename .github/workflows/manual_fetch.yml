@@ -37,13 +37,13 @@ jobs:
         GOOGLE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_ACCOUNT_EMAIL }}
         AUTH_METHOD: ${{ secrets.GOOGLE_AUTH_METHOD || github.event.inputs.auth_method }}
       run: |
-        python main.py
+        python -m main
 
     - name: Run Expense Processor
-      run: python processors/expense_processor.py
+      run: python -m processors.expense_processor
 
     - name: Upload to Google Sheets
       env:
         GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-      run: python processors/sheets_uploader.py
+      run: python -m processors.sheets_uploader
