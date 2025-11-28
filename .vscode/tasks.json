@@ -6,7 +6,8 @@
             "type": "shell",
             "command": "${workspaceFolder}/venv/bin/python3",
             "args": [
-                "main.py"
+                "-m",
+                "main"
             ],
             "problemMatcher": [],
             "presentation": {
@@ -23,7 +24,8 @@
             "type": "shell",
             "command": "${workspaceFolder}/venv/bin/python3",
             "args": [
-                "processors/expense_processor.py"
+                "-m",
+                "processors.expense_processor"
             ],
             "problemMatcher": [],
             "presentation": {
