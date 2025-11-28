@@ -139,7 +139,8 @@ def process_expenses(input_file=INPUT_FILE, output_file=OUTPUT_FILE):
         if not note_date:
             continue
             
-        # Parse each line in the note
+        # Parse each line in the note and track sequence
+        line_number = 0
         for line in str(row['text']).split('\n'):
             item = parse_expense_line(line)
             if item:
@@ -148,16 +149,21 @@ def process_expenses(input_file=INPUT_FILE, output_file=OUTPUT_FILE):
                     'category': categorize_expense(item['description']),
                     'description': item['description'],
                     'amount': item['amount'],
-                    'uncleared': item['uncleared']
+                    'uncleared': item['uncleared'],
+                    'sequence': line_number
                 })
+                line_number += 1
 
     if not processed_data:
         print("No expense items extracted.")
         return
 
-    # Create DataFrame and sort
+    # Create DataFrame and sort by date (descending) then sequence (ascending)
     result_df = pd.DataFrame(processed_data)
-    result_df = result_df.sort_values(by='date', ascending=False)
+    result_df = result_df.sort_values(by=['date', 'sequence'], ascending=[False, True])
+    
+    # Remove sequence column before saving
+    result_df = result_df.drop(columns=['sequence'])
     
     # Save to CSV
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
