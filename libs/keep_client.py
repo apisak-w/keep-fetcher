@@ -25,7 +25,7 @@ class KeepClient:
         if token and not password:
             print("Attempting to resume session...")
             try:
-                self.keep.authenticate(username, token)
+                self.keep.resume(username, token)
                 print("Session resumed successfully.")
                 return True
             except Exception as e:
@@ -62,7 +62,7 @@ class KeepClient:
                     print("Login failed: No token received.")
                     return False
                     
-                self.keep.authenticate(username, token)
+                self.keep.resume(username, token)
                 try:
                     keyring.set_password("google-keep-fetcher", username, token)
                     print("Login successful. Token saved.")
@@ -81,7 +81,7 @@ class KeepClient:
         self.username = username
         try:
             print("Authenticating with provided master token...")
-            self.keep.authenticate(username, token)
+            self.keep.resume(username, token)
             try:
                 keyring.set_password("google-keep-fetcher", username, token)
                 print("Authentication successful. Token saved.")

@@ -1,4 +1,4 @@
-gkeepapi
+gkeepapi==0.17.0
 keyring
 pandas
 gspread
