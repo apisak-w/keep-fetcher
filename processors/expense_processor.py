@@ -158,9 +158,9 @@ def process_expenses(input_file=INPUT_FILE, output_file=OUTPUT_FILE):
         print("No expense items extracted.")
         return
 
-    # Create DataFrame and sort by date (descending) then sequence (ascending)
+    # Create DataFrame and sort by date (ascending/oldest first) then sequence (ascending)
     result_df = pd.DataFrame(processed_data)
-    result_df = result_df.sort_values(by=['date', 'sequence'], ascending=[False, True])
+    result_df = result_df.sort_values(by=['date', 'sequence'], ascending=[True, True])
     
     # Remove sequence column before saving
     result_df = result_df.drop(columns=['sequence'])
