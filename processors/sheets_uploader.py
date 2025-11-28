@@ -6,8 +6,7 @@ import pandas as pd
 from config.constants import (
     EXPENSES_PROCESSED_CSV,
     COLUMN_FORMATS,
-    ENV_GOOGLE_SERVICE_ACCOUNT_JSON,
-    ENV_GOOGLE_SHEET_ID
+    ENV
 )
 
 
@@ -25,10 +24,10 @@ def get_credentials():
     Raises:
         SystemExit: If credentials are not found
     """
-    service_account_json = os.environ.get(ENV_GOOGLE_SERVICE_ACCOUNT_JSON)
+    service_account_json = os.environ.get(ENV['GOOGLE_SERVICE_ACCOUNT_JSON'])
     
     if not service_account_json:
-        print(f"Error: {ENV_GOOGLE_SERVICE_ACCOUNT_JSON} environment variable not set.")
+        print(f"Error: {ENV['GOOGLE_SERVICE_ACCOUNT_JSON']} environment variable not set.")
         sys.exit(1)
     
     try:
@@ -48,10 +47,10 @@ def get_sheet_id():
     Raises:
         SystemExit: If sheet ID is not found
     """
-    sheet_id = os.environ.get(ENV_GOOGLE_SHEET_ID)
+    sheet_id = os.environ.get(ENV['GOOGLE_SHEET_ID'])
     
     if not sheet_id:
-        print(f"Error: {ENV_GOOGLE_SHEET_ID} environment variable not set.")
+        print(f"Error: {ENV['GOOGLE_SHEET_ID']} environment variable not set.")
         sys.exit(1)
     
     return sheet_id

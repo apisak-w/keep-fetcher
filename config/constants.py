@@ -78,18 +78,20 @@ COLUMN_FORMATS = {
 # Environment Variable Names
 # ============================================================================
 
-# Google Keep Authentication
-ENV_GOOGLE_ACCOUNT_EMAIL = "GOOGLE_ACCOUNT_EMAIL"
-ENV_GOOGLE_OAUTH_TOKEN = "GOOGLE_OAUTH_TOKEN"
-ENV_GOOGLE_MASTER_TOKEN = "GOOGLE_MASTER_TOKEN"
-ENV_AUTH_METHOD = "AUTH_METHOD"
-
-# Google Sheets Authentication
-ENV_GOOGLE_SERVICE_ACCOUNT_JSON = "GOOGLE_SERVICE_ACCOUNT_JSON"
-ENV_GOOGLE_SHEET_ID = "GOOGLE_SHEET_ID"
-
-# CI Detection
-ENV_CI = "CI"
+ENV = {
+    # Google Keep Authentication
+    'GOOGLE_ACCOUNT_EMAIL': "GOOGLE_ACCOUNT_EMAIL",
+    'GOOGLE_OAUTH_TOKEN': "GOOGLE_OAUTH_TOKEN",
+    'GOOGLE_MASTER_TOKEN': "GOOGLE_MASTER_TOKEN",
+    'AUTH_METHOD': "AUTH_METHOD",
+    
+    # Google Sheets Authentication
+    'GOOGLE_SERVICE_ACCOUNT_JSON': "GOOGLE_SERVICE_ACCOUNT_JSON",
+    'GOOGLE_SHEET_ID': "GOOGLE_SHEET_ID",
+    
+    # CI Detection
+    'CI': "CI",
+}
 
 
 # ============================================================================

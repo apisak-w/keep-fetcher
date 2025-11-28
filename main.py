@@ -5,11 +5,7 @@ from libs.keep_client import KeepClient
 from config.constants import (
     OUTPUT_DIR,
     KEEP_NOTES_CSV,
-    ENV_GOOGLE_ACCOUNT_EMAIL,
-    ENV_GOOGLE_OAUTH_TOKEN,
-    ENV_GOOGLE_MASTER_TOKEN,
-    ENV_AUTH_METHOD,
-    ENV_CI
+    ENV
 )
 
 
@@ -26,11 +22,11 @@ OUTPUT_FILE = "outputs/keep_notes.csv"
 
 def get_username():
     """Get username from environment or user input."""
-    username = os.environ.get(ENV_GOOGLE_ACCOUNT_EMAIL)
+    username = os.environ.get(ENV['GOOGLE_ACCOUNT_EMAIL'])
     
     # In CI environment, email must be provided via environment variable
-    if os.environ.get(ENV_CI) and not username:
-        print(f"Error: {ENV_GOOGLE_ACCOUNT_EMAIL} environment variable not set in CI environment.")
+    if os.environ.get(ENV['CI']) and not username:
+        print(f"Error: {ENV['GOOGLE_ACCOUNT_EMAIL']} environment variable not set in CI environment.")
         sys.exit(1)
 
     if not username:
@@ -46,9 +42,9 @@ def authenticate_with_env_tokens(client, username):
     Returns:
         bool: True if authentication succeeded, False otherwise
     """
-    oauth_token = os.environ.get(ENV_GOOGLE_OAUTH_TOKEN)
-    master_token = os.environ.get(ENV_GOOGLE_MASTER_TOKEN)
-    auth_method = os.environ.get(ENV_AUTH_METHOD, "").lower()
+    oauth_token = os.environ.get(ENV['GOOGLE_OAUTH_TOKEN'])
+    master_token = os.environ.get(ENV['GOOGLE_MASTER_TOKEN'])
+    auth_method = os.environ.get(ENV['AUTH_METHOD'], "").lower()
 
     # Try explicit auth method first
     if auth_method == 'master' and master_token:
@@ -118,7 +114,7 @@ def authenticate(client, username):
         return
     
     # In CI, we can't do interactive auth
-    if os.environ.get(ENV_CI):
+    if os.environ.get(ENV['CI']):
         print("Error: No valid authentication token found in CI environment.")
         sys.exit(1)
     
