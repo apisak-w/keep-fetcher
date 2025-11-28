@@ -1,0 +1,52 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Keep Fetcher",
+            "type": "shell",
+            "command": "${workspaceFolder}/venv/bin/python3",
+            "args": [
+                "main.py"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Run Expense Processor",
+            "type": "shell",
+            "command": "${workspaceFolder}/venv/bin/python3",
+            "args": [
+                "processors/expense_processor.py"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Run Full Pipeline",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Run Keep Fetcher",
+                "Run Expense Processor"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
