@@ -3,13 +3,12 @@ import sys
 import json
 import gspread
 import pandas as pd
-
-
-# ============================================================================
-# Configuration
-# ============================================================================
-
-INPUT_FILE = 'outputs/expenses_processed.csv'
+from config.constants import (
+    EXPENSES_PROCESSED_CSV,
+    COLUMN_FORMATS,
+    ENV_GOOGLE_SERVICE_ACCOUNT_JSON,
+    ENV_GOOGLE_SHEET_ID
+)
 
 
 # ============================================================================
@@ -26,10 +25,10 @@ def get_credentials():
     Raises:
         SystemExit: If credentials are not found
     """
-    service_account_json = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
+    service_account_json = os.environ.get(ENV_GOOGLE_SERVICE_ACCOUNT_JSON)
     
     if not service_account_json:
-        print("Error: GOOGLE_SERVICE_ACCOUNT_JSON environment variable not set.")
+        print(f"Error: {ENV_GOOGLE_SERVICE_ACCOUNT_JSON} environment variable not set.")
         sys.exit(1)
     
     try:
@@ -49,10 +48,10 @@ def get_sheet_id():
     Raises:
         SystemExit: If sheet ID is not found
     """
-    sheet_id = os.environ.get('GOOGLE_SHEET_ID')
+    sheet_id = os.environ.get(ENV_GOOGLE_SHEET_ID)
     
     if not sheet_id:
-        print("Error: GOOGLE_SHEET_ID environment variable not set.")
+        print(f"Error: {ENV_GOOGLE_SHEET_ID} environment variable not set.")
         sys.exit(1)
     
     return sheet_id
@@ -140,23 +139,7 @@ def apply_column_formatting(worksheet, df):
     if len(df) == 0:
         return
     
-    column_formats = {
-        'date': {
-            'numberFormat': {
-                'type': 'DATE',
-                'pattern': 'yyyy-mm-dd'
-            }
-        },
-        # Add more column formats here as needed
-        # 'amount': {
-        #     'numberFormat': {
-        #         'type': 'CURRENCY',
-        #         'pattern': '$#,##0.00'
-        #     }
-        # },
-    }
-    
-    for col_name, format_spec in column_formats.items():
+    for col_name, format_spec in COLUMN_FORMATS.items():
         if col_name in df.columns:
             print(f"Formatting '{col_name}' column...")
             col_index = df.columns.tolist().index(col_name)
@@ -202,7 +185,7 @@ def update_worksheet(worksheet, df):
 # Main Function
 # ============================================================================
 
-def upload_to_sheets(csv_file=INPUT_FILE):
+def upload_to_sheets(csv_file=EXPENSES_PROCESSED_CSV):
     """
     Upload CSV data to Google Sheets.
     

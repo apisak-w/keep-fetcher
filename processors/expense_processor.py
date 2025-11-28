@@ -2,46 +2,12 @@ import os
 import re
 from datetime import datetime
 import pandas as pd
-
-
-# ============================================================================
-# Configuration
-# ============================================================================
-
-EXPENSE_CATEGORIES = {
-    'Shopping': [
-        'book', 'gift', 'clothes', 'shoes', 'bag', 'amazon', 'lazada', 
-        'shopee', 'sofa', 'tuya', 'adapter', 'phone', 'belt', 'coffee table', 
-        'battery', 'key', 'ladle', 'lamp', 'perfume', 'rug', 'stairs', 
-        'home appliance', 'housewares', 'shirt', 'shorts', 'toothpaste'
-    ],
-    'Food': [
-        'food', 'lunch', 'dinner', 'breakfast', 'snack', 'meal', 'drink'
-    ],
-    'Transport': [
-        'mrt', 'bts', 'taxi', 'motorcycle', 'bus', 'rabbit', 'grab', 'uber', 
-        'train', 'flight', 'tsubaru', 'airport', 'express', 'two row car', 
-        'arl', 'srt'
-    ],
-    'Utilities': [
-        'mobile', 'top-up', 'mobile top up', 'icloud', 'internet', 'bill', 
-        'subscription', 'netflix', 'spotify'
-    ],
-    'Entertainment': [
-        'movie', 'cinema', 'game', 'concert', 'ticket', 'show', 'party', 
-        'bar', 'club', 'youtube', 'disney', 'badminton'
-    ],
-    'Personal': [
-        'haircut', 'gym', 'sport', 'massage', 'spa', 'doctor', 'medicine', 
-        'driving', 'medical', 'personal care'
-    ],
-    'Housing/Car': [
-        'car', 'rent', 'condo', 'electricity', 'water', 'home', 'house'
-    ],
-}
-
-INPUT_FILE = 'outputs/keep_notes.csv'
-OUTPUT_FILE = 'outputs/expenses_processed.csv'
+from config.constants import (
+    KEEP_NOTES_CSV,
+    EXPENSES_PROCESSED_CSV,
+    EXPENSE_CATEGORIES,
+    OUTPUT_DIR
+)
 
 
 # ============================================================================
@@ -112,7 +78,7 @@ def categorize_expense(description):
 # Main Processing
 # ============================================================================
 
-def process_expenses(input_file=INPUT_FILE, output_file=OUTPUT_FILE):
+def process_expenses(input_file=KEEP_NOTES_CSV, output_file=EXPENSES_PROCESSED_CSV):
     """
     Process expense notes from Keep and export to CSV.
     
@@ -166,7 +132,7 @@ def process_expenses(input_file=INPUT_FILE, output_file=OUTPUT_FILE):
     result_df = result_df.drop(columns=['sequence'])
     
     # Save to CSV
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     result_df.to_csv(output_file, index=False)
     
     print(f"Extracted {len(result_df)} expense items.")
