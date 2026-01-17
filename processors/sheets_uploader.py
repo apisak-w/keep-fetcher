@@ -139,8 +139,9 @@ def apply_column_formatting(worksheet, df):
         if col_name in df.columns:
             print(f"Formatting '{col_name}' column...")
             col_index = df.columns.tolist().index(col_name)
-            col_letter = chr(65 + col_index)  # A=65 in ASCII
-            cell_range = f"{col_letter}2:{col_letter}{len(df) + 1}"
+            # Use gspread utility for robust column letter conversion (handles A, B... Z, AA, AB...)
+            col_letter = gspread.utils.rowcol_to_a1(1, col_index + 1).rstrip('1')
+            cell_range = f"{col_letter}2:{col_letter}"
             
             try:
                 worksheet.format(cell_range, format_spec)
