@@ -63,15 +63,26 @@ COLUMN_FORMATS = {
         'numberFormat': {
             'type': 'DATE',
             'pattern': 'yyyy-mm-dd'
-        }
+        },
+        'horizontalAlignment': 'CENTER',
+        'textFormat': {'fontFamily': 'Calibri', 'fontSize': 12}
     },
-    # Add more column formats here as needed
-    # 'amount': {
-    #     'numberFormat': {
-    #         'type': 'CURRENCY',
-    #         'pattern': '$#,##0.00'
-    #     }
-    # },
+    'amount': {
+        'numberFormat': {
+            'type': 'CURRENCY',
+            'pattern': '\"฿\"#,##0.00'
+        },
+        'textFormat': {'fontFamily': 'Calibri', 'fontSize': 12}
+    },
+    'uncleared': {
+        'horizontalAlignment': 'CENTER',
+        'textFormat': {'fontFamily': 'Calibri', 'fontSize': 12}
+    }
+}
+
+HEADER_FORMAT = {
+    "textFormat": {"bold": True, "fontFamily": "Calibri", "underline": True, "fontSize": 12},
+    "horizontalAlignment": "LEFT"
 }
 
 
