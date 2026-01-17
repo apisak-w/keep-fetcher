@@ -63,15 +63,24 @@ COLUMN_FORMATS = {
         'numberFormat': {
             'type': 'DATE',
             'pattern': 'yyyy-mm-dd'
+        },
+        'horizontalAlignment': 'CENTER'
+    },
+    'amount': {
+        'numberFormat': {
+            'type': 'NUMBER',
+            'pattern': '#,##0.00'
         }
     },
-    # Add more column formats here as needed
-    # 'amount': {
-    #     'numberFormat': {
-    #         'type': 'CURRENCY',
-    #         'pattern': '$#,##0.00'
-    #     }
-    # },
+    'uncleared': {
+        'horizontalAlignment': 'CENTER'
+    }
+}
+
+HEADER_FORMAT = {
+    "textFormat": {"bold": True},
+    "backgroundColor": {"red": 0.9, "green": 0.9, "blue": 0.9},
+    "horizontalAlignment": "CENTER"
 }
 
 

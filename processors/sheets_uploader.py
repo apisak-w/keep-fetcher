@@ -3,7 +3,7 @@ import sys
 import json
 import gspread
 import pandas as pd
-from config.constants import EXPENSES_PROCESSED_CSV, COLUMN_FORMATS
+from config.constants import EXPENSES_PROCESSED_CSV, COLUMN_FORMATS, HEADER_FORMAT
 from config.env import ENV
 
 
@@ -167,7 +167,15 @@ def update_worksheet(worksheet, df):
     try:
         # Convert DataFrame to list of lists (header + rows)
         data = [df.columns.values.tolist()] + df.values.tolist()
-        worksheet.update(data)
+        
+        # Use raw=False to ensure Google Sheets parses dates and numbers (USER_ENTERED)
+        worksheet.update(data, raw=False)
+        
+        # Format header row
+        print("Formatting header row...")
+        last_col_letter = gspread.utils.rowcol_to_a1(1, len(df.columns)).rstrip('1')
+        header_range = f"A1:{last_col_letter}1"
+        worksheet.format(header_range, HEADER_FORMAT)
         
         # Apply column formatting
         apply_column_formatting(worksheet, df)
