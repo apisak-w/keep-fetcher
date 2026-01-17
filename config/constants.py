@@ -64,23 +64,25 @@ COLUMN_FORMATS = {
             'type': 'DATE',
             'pattern': 'yyyy-mm-dd'
         },
-        'horizontalAlignment': 'CENTER'
+        'horizontalAlignment': 'CENTER',
+        'textFormat': {'fontFamily': 'Calibri'}
     },
     'amount': {
         'numberFormat': {
-            'type': 'NUMBER',
-            'pattern': '#,##0.00'
-        }
+            'type': 'CURRENCY',
+            'pattern': '\"฿\"#,##0.00'
+        },
+        'textFormat': {'fontFamily': 'Calibri'}
     },
     'uncleared': {
-        'horizontalAlignment': 'CENTER'
+        'horizontalAlignment': 'CENTER',
+        'textFormat': {'fontFamily': 'Calibri'}
     }
 }
 
 HEADER_FORMAT = {
-    "textFormat": {"bold": True},
-    "backgroundColor": {"red": 0.9, "green": 0.9, "blue": 0.9},
-    "horizontalAlignment": "CENTER"
+    "textFormat": {"bold": True, "fontFamily": "Calibri", "underline": True},
+    "horizontalAlignment": "LEFT"
 }
 
 
