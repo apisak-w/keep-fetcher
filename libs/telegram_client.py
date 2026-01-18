@@ -23,12 +23,13 @@ class TelegramClient:
             
         self.api_url = f"https://api.telegram.org/bot{self.bot_token}/sendMessage"
 
-    def send_message(self, text):
+    def send_message(self, text, reply_markup=None):
         """
-        Send a text message to the configured Telegram chat.
+        Send a text message to the configured Telegram chat, optionally with an inline keyboard.
         
         Args:
             text (str): The message text to send.
+            reply_markup (dict, optional): Inline keyboard or other reply markup.
             
         Returns:
             bool: True if successful, False otherwise.
@@ -42,6 +43,9 @@ class TelegramClient:
             'text': text,
             'parse_mode': 'Markdown'
         }
+
+        if reply_markup:
+            payload['reply_markup'] = reply_markup
 
         try:
             response = requests.post(self.api_url, json=payload)

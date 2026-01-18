@@ -36,19 +36,23 @@ def send_summary_notification():
         status_symbol = "❌"
         status_text = "Sync failed: Processed data not found."
 
-    msg_lines = [f"{status_symbol} *Google Keep Sync Status*"]
-    msg_lines.append(f"\n{status_text}")
+    msg = f"{status_symbol} *Google Keep Sync Status*\n\n{status_text}"
+    
+    reply_markup = None
+    buttons = []
     
     if google_sheet_url:
-        msg_lines.append(f"\n📊 [View Google Sheet]({google_sheet_url})")
+        buttons.append({"text": "📊 View Google Sheet", "url": google_sheet_url})
     
     if github_run_url:
-        msg_lines.append(f"🔍 [View GitHub Action Logs]({github_run_url})")
-    
-    msg = "\n".join(msg_lines)
+        buttons.append({"text": "🔍 View GitHub Action Logs", "url": github_run_url})
+        
+    if buttons:
+        # Arrange buttons in a column (each in its own row)
+        reply_markup = {"inline_keyboard": [[btn] for btn in buttons]}
     
     print("Sending Telegram notification...")
-    tg_client.send_message(msg)
+    tg_client.send_message(msg, reply_markup=reply_markup)
 
 if __name__ == "__main__":
     send_summary_notification()
