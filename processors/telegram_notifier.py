@@ -28,7 +28,7 @@ def send_summary_notification():
             
         if item_count > 0:
             status_symbol = "✅"
-            status_text = "Notes fetched and synced successfully."
+            status_text = "Expenses fetched and synced successfully."
         else:
             status_symbol = "ℹ️"
             status_text = "No new expenses found to process."
@@ -36,7 +36,7 @@ def send_summary_notification():
         status_symbol = "❌"
         status_text = "Sync failed: Processed data not found."
 
-    msg = f"{status_symbol} *Google Keep Sync Status*\n\n{status_text}"
+    msg = f"{status_symbol} *Expense to Sheets Sync Status*\n\n{status_text}"
     
     reply_markup = None
     buttons = []
