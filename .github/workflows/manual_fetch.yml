@@ -4,46 +4,54 @@ on:
   workflow_dispatch:
     inputs:
       auth_method:
-        description: 'Authentication Method'
+        description: "Authentication Method"
         required: true
-        default: 'master'
+        default: "master"
         type: choice
         options:
-        - oauth
-        - master
+          - oauth
+          - master
 
 jobs:
   fetch-and-process:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Run Keep Fetcher (Main)
-      env:
-        GOOGLE_OAUTH_TOKEN: ${{ secrets.GOOGLE_OAUTH_TOKEN }}
-        GOOGLE_MASTER_TOKEN: ${{ secrets.GOOGLE_MASTER_TOKEN }}
-        GOOGLE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_ACCOUNT_EMAIL }}
-        AUTH_METHOD: ${{ secrets.GOOGLE_AUTH_METHOD || github.event.inputs.auth_method }}
-      run: |
-        python -m main
+      - name: Run Keep Fetcher (Main)
+        env:
+          GOOGLE_OAUTH_TOKEN: ${{ secrets.GOOGLE_OAUTH_TOKEN }}
+          GOOGLE_MASTER_TOKEN: ${{ secrets.GOOGLE_MASTER_TOKEN }}
+          GOOGLE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_ACCOUNT_EMAIL }}
+          AUTH_METHOD: ${{ secrets.GOOGLE_AUTH_METHOD || github.event.inputs.auth_method }}
+        run: |
+          python -m main
 
-    - name: Run Expense Processor
-      run: python -m processors.expense_processor
+      - name: Run Expense Processor
+        run: python -m processors.expense_processor
 
-    - name: Upload to Google Sheets
-      env:
-        GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-        GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-      run: python -m processors.sheets_uploader
+      - name: Upload to Google Sheets
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+        run: python -m processors.sheets_uploader
+
+      - name: Send Telegram Notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python -m processors.telegram_notifier

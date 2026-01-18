@@ -15,4 +15,8 @@ ENV = {
     
     # CI Detection
     'CI': "CI",
+
+    # Telegram Notification
+    'TELEGRAM_BOT_TOKEN': "TELEGRAM_BOT_TOKEN",
+    'TELEGRAM_CHAT_ID': "TELEGRAM_CHAT_ID",
 }
