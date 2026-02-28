@@ -1,4 +1,3 @@
 gspread
 python-telegram-bot
-# httpx is required by python-telegram-bot and supported by Cloudflare
 httpx
