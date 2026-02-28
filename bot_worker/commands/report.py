@@ -46,8 +46,8 @@ async def handle_report(ctx):
         if loading_id:
             await ctx.delete_message(loading_id)
         
-        # Send the final report using MarkdownV2
-        await ctx.reply(report, parse_mode='MarkdownV2')
+        # Send the final report using MarkdownV2 and protect_content
+        await ctx.reply(report, parse_mode='MarkdownV2', protect_content=True)
         
     except Exception as e:
         print(f"Error in handle_report: {e}")

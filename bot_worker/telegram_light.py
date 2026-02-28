@@ -13,7 +13,7 @@ def escape_markdown_v2(text):
     escape_chars = r'_*[]()~`>#+-=|{}.!'
     return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', text)
 
-async def send_telegram_message(token, chat_id, text, reply_markup=None, parse_mode='Markdown'):
+async def send_telegram_message(token, chat_id, text, reply_markup=None, parse_mode='Markdown', protect_content=False):
     """
     Send a message via Telegram Bot API using the Cloudflare fetch API.
     """
@@ -22,7 +22,8 @@ async def send_telegram_message(token, chat_id, text, reply_markup=None, parse_m
     payload = {
         'chat_id': chat_id,
         'text': text,
-        'parse_mode': parse_mode
+        'parse_mode': parse_mode,
+        'protect_content': protect_content
     }
     
     if reply_markup:
