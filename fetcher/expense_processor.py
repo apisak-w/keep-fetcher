@@ -2,7 +2,7 @@ import os
 import re
 from datetime import datetime
 import pandas as pd
-from config.constants import (
+from shared.config.constants import (
     KEEP_NOTES_CSV,
     EXPENSES_PROCESSED_CSV,
     EXPENSE_CATEGORIES,

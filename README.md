@@ -1,119 +1,70 @@
-# Google Keep Fetcher
+# Keep Expense Manager
 
-A Python CLI tool to fetch your Google Keep notes and export them to a Pandas DataFrame and CSV file. This tool uses the unofficial `gkeepapi` library.
+A Python tool to manage your expenses via Google Keep and Telegram, synced to Google Sheets.
+
+## Project Structure
+
+- `fetcher/`: Logic to fetch and sync notes from Google Keep.
+- `bot/`: Telegram bot to record income/expenses and view reports.
+- `shared/`: Shared configuration and reusable libraries (Keep, Sheets, etc.).
 
 ## Features
 
--   Fetches all notes from Google Keep.
--   Supports multiple authentication methods to bypass "BadAuthentication" errors.
--   Exports data to a Pandas DataFrame.
--   Saves notes to `keep_notes.csv`.
--   Extracts note metadata: Title, Text, Created/Updated timestamps, Labels, Archived/Trashed status, and URL.
-
-## Prerequisites
-
--   Python 3.7+
--   A Google Account
+- **Google Keep Sync**: Fetches expense notes from Google Keep and uploads them to Google Sheets.
+- **Telegram Bot**:
+  - Record expenses: `/expense <amount> <description> [category]`
+  - Record income: `/income <amount> <description>`
+  - View reports: `/report` (Monthly summary by category)
+- **Shared Google Sheets Backend**: Both fetcher and bot update the same Google Sheet.
 
 ## Installation
 
-1.  **Clone the repository** (if applicable) or navigate to the project directory.
-
-2.  **Create a virtual environment:**
-    ```bash
-    python3 -m venv venv
-    ```
-
-3.  **Activate the virtual environment:**
-    -   On macOS/Linux:
-        ```bash
-        source venv/bin/activate
-        ```
-    -   On Windows:
-        ```bash
-        .\venv\Scripts\activate
-        ```
-
-4.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+1. **Clone the repository** and navigate to the project directory.
+2. **Create and activate a virtual environment**:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # macOS/Linux
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Usage
 
-Run the main script:
+### Google Keep Fetcher
+
+Sync your Google Keep notes to Google Sheets:
 
 ```bash
-./venv/bin/python3 main.py
+python3 -m fetcher.main
 ```
 
-### Authentication
-
-When you run the script, you will be prompted to enter your Google email. Then, you will be presented with three authentication options:
-
-1.  **App Password**: Try this first if you have an App Password generated. Note that this often fails with `BadAuthentication` due to Google's security checks.
-2.  **Master Token**: If you already have a master token (starting with `aas_et/`), you can enter it here.
-3.  **OAuth Token (Recommended)**: Use this "Alternative Flow" if option #1 fails.
-    -   Open `https://accounts.google.com/EmbeddedSetup` in your browser (Incognito mode recommended).
-    -   Log in to your Google Account.
-    -   Open Developer Tools (F12 or Right-click -> Inspect).
-    -   Go to the **Application** tab (or **Storage** tab in Firefox) -> **Cookies**.
-    -   Find the cookie named `oauth_token`.
-    -   Copy its value and paste it into the terminal when prompted.
-
-**Note**: After a successful login, the master token is securely stored in your system's keyring, so you won't need to re-authenticate every time.
-
-## Output
-
-The script will:
-1.  Print the first 5 notes to the console.
-2.  Save all notes to `outputs/keep_notes.csv`.
-
-## Expense Processor
-
-If you use Google Keep to track expenses (e.g., notes titled "November 22th, 2025" with items like "☐ Food 150"), you can use the expense processor to extract this data.
+Then process and upload:
 
 ```bash
-./venv/bin/python3 processors/expense_processor.py
+python3 -m fetcher.expense_processor
+python3 -m fetcher.sheets_uploader
 ```
 
-This will:
-1.  Read `outputs/keep_notes.csv`.
-2.  Filter for notes with the "expense" label.
-3.  Parse the date from the note title.
-4.  Extract unchecked items (starting with `☐`) from the text. Checked items (`☑`) are ignored.
-5.  Automatically categorize expenses (Food, Transport, Utilities, etc.) based on keywords.
-6.  Save the structured data to `outputs/expenses_processed.csv` with columns: `date`, `category`, `description`, `amount`, `uncleared`.
+### Telegram Bot
 
-## GitHub Actions & Google Sheets
+Start the bot:
 
-You can automate the fetching and processing using the included GitHub Action workflow.
+```bash
+python3 -m bot.main
+```
 
-### Prerequisites
-1.  **Google Service Account**:
-    -   **Create Account**: Go to [Google Cloud Console](https://console.cloud.google.com/), create a project, and create a Service Account.
-    -   **Enable APIs**: Search for and enable **"Google Sheets API"** and **"Google Drive API"**.
-    -   **Download Key**: Create and download a JSON key for your Service Account.
-    -   **Grant Access**: Open your target Google Sheet, click **Share**, and paste the **Service Account's email address** (found in the JSON file, usually ends in `@...iam.gserviceaccount.com`). Give it **Editor** permission.
-2.  **GitHub Secrets**:
-    -   Go to your repository Settings -> Secrets and variables -> Actions.
-    -   Add `GOOGLE_ACCOUNT_EMAIL`: Your Google Account email address.
-    -   (Optional) Add `GOOGLE_AUTH_METHOD`: Set to `oauth` (default) or `master` to enforce an authentication method.
-    -   Add `GOOGLE_OAUTH_TOKEN`: Your Google OAuth Token (from the `oauth_token` cookie).
-        -   To get this:
-            1.  Open `https://accounts.google.com/EmbeddedSetup` in Incognito.
-            2.  Log in.
-            3.  Open DevTools -> Application -> Cookies.
-            4.  Copy the value of `oauth_token`.
-    -   Add `GOOGLE_SERVICE_ACCOUNT_JSON`: The content of your Service Account JSON key file.
-    -   Add `GOOGLE_SHEET_ID`: The ID of your target Google Sheet (found in the URL).
+## Configuration
 
-### Triggering the Workflow
-1.  Go to the **Actions** tab in your repository.
-2.  Select **Manual Keep Fetcher**.
-3.  Click **Run workflow**.
-4.  The workflow will fetch notes, process expenses, and update your Google Sheet.
+Set the following environment variables:
 
-## Disclaimer
+- `GOOGLE_ACCOUNT_EMAIL`: Your Google account email.
+- `GOOGLE_OAUTH_TOKEN`: OAuth token for Google Keep (see fetcher docs).
+- `GOOGLE_SERVICE_ACCOUNT_JSON`: Service account JSON for Google Sheets.
+- `GOOGLE_SHEET_ID`: Target Google Sheet ID.
+- `TELEGRAM_BOT_TOKEN`: Token from @BotFather.
 
-This project uses `gkeepapi`, which is an unofficial client for the Google Keep API. It is not supported by Google and may break if Google changes their internal API. Use at your own risk.
+## GitHub Actions
+
+Automated sync is supported via GitHub Actions. See `.github/workflows/` for details.

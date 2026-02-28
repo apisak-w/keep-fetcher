@@ -1,7 +1,7 @@
 import requests
 import os
 import sys
-from config.env import ENV
+from shared.config.env import ENV
 
 class TelegramClient:
     """

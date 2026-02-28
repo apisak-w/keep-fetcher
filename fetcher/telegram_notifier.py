@@ -1,8 +1,8 @@
 import pandas as pd
 import os
-from libs.telegram_client import TelegramClient
-from config.constants import EXPENSES_PROCESSED_CSV
-from config.env import ENV
+from shared.libs.telegram_client import TelegramClient
+from shared.config.constants import EXPENSES_PROCESSED_CSV
+from shared.config.env import ENV
 
 def send_summary_notification():
     """
