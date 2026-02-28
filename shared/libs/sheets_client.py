@@ -2,7 +2,8 @@ import os
 import sys
 import json
 import gspread
-import pandas as pd
+# pandas is only used in upload_df and is a heavy dependency
+# We move it inside to avoid loading it in Cloudflare Workers
 from shared.config.constants import COLUMN_FORMATS, HEADER_FORMAT
 from shared.config.env import ENV
 
@@ -54,6 +55,7 @@ class SheetsClient:
 
     def upload_df(self, df):
         """Overwrite the entire sheet with DataFrame contents."""
+        import pandas as pd
         print("Clearing existing data...")
         self.worksheet.clear()
         
