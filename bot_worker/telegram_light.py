@@ -26,7 +26,7 @@ async def send_telegram_message(token, chat_id, text, reply_markup=None):
     }))
     
     response = await js.fetch(url, options)
-    res_json = await response.json()
+    res_json = (await response.json()).to_py()
     print(f"Telegram API Response: {json.dumps(res_json)}")
     
     return res_json

@@ -17,9 +17,8 @@ async def on_fetch(request, env, ctx):
         return js.Response.new("Method Not Allowed", js.Object.fromEntries(to_js({"status": 405})))
 
     try:
-        data = await request.json()
-        if isinstance(data, str):
-            data = json.loads(data)
+        # Use .to_py() to convert the JavaScript proxy object to a Python dict
+        data = (await request.json()).to_py()
         
         print(f"Incoming Webhook Data: {json.dumps(data)}")
             
@@ -30,7 +29,7 @@ async def on_fetch(request, env, ctx):
         print(f"Message text: {text}, Chat ID: {chat_id}")
         
         if not chat_id:
-            return js.Response.new("OK", status=200)
+            return js.Response.new("OK", js.Object.fromEntries(to_js({"status": 200})))
 
         token = getattr(env, "TELEGRAM_BOT_TOKEN", None)
         sheets_json = getattr(env, "GOOGLE_SERVICE_ACCOUNT_JSON", None)
@@ -75,7 +74,7 @@ async def on_fetch(request, env, ctx):
             report_text = format_report(records)
             await send_telegram_message(token, chat_id, report_text)
 
-        return js.Response.new("OK", status=200)
+        return js.Response.new("OK", js.Object.fromEntries(to_js({"status": 200})))
 
     except Exception as e:
         # In a real worker, we might want to log this to Cloudflare Logs
