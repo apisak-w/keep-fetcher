@@ -2,8 +2,7 @@ name = "keep-expense-manager-bot"
 main = "bot/worker.py"
 compatibility_date = "2024-04-01"
 
-[compatibility_flags]
-"python_workers" = true
+compatibility_flags = [ "python_workers" ]
 
 [vars]
 # Add non-sensitive variables here if needed
