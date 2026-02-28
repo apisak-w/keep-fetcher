@@ -39,7 +39,6 @@ async def send_telegram_message(token, chat_id, text, reply_markup=None, parse_m
     
     response = await js.fetch(url, options)
     res_json = (await response.json()).to_py()
-    print(f"Telegram API Response: {json.dumps(res_json)}")
     
     return res_json
 
@@ -65,7 +64,6 @@ async def delete_telegram_message(token, chat_id, message_id):
     try:
         response = await js.fetch(url, options)
         res_json = (await response.json()).to_py()
-        print(f"Telegram Delete Response: {json.dumps(res_json)}")
         return res_json
     except Exception as e:
         print(f"Error deleting message: {e}")

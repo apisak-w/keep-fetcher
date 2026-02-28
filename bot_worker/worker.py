@@ -26,13 +26,13 @@ async def on_fetch(request, env, ctx):
         # Use .to_py() to convert the JavaScript proxy object to a Python dict
         data = (await request.json()).to_py()
         
-        print(f"Incoming Webhook Data: {json.dumps(data)}")
+        # print(f"Incoming Webhook Data: {json.dumps(data)}")
             
         message = data.get("message", {})
         text = message.get("text", "")
         chat_id = message.get("chat", {}).get("id")
         
-        print(f"Message text: {text}, Chat ID: {chat_id}")
+        # print(f"Message text: {text}, Chat ID: {chat_id}")
         
         if not chat_id:
             return js.Response.new("OK", js.Object.fromEntries(to_js({"status": 200})))
