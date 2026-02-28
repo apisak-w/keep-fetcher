@@ -1,6 +1,18 @@
 from utils import get_pivot_report_data
 from telegram_light import escape_markdown_v2
 
+CATEGORY_EMOJIS = {
+    'Shopping': '🛍️',
+    'Food': '🍴',
+    'Transport': '🚗',
+    'Utilities': '💡',
+    'Entertainment': '🎭',
+    'Personal': '👤',
+    'Housing/Car': '🏠',
+    'Other': '📦',
+    'Income': '💰'
+}
+
 async def handle_report(ctx):
     """Handles the /report command using the Pivot Annual Report."""
     print("Handling /report command")
@@ -21,26 +33,24 @@ async def handle_report(ctx):
             await ctx.reply(error_msg)
             return
 
-        # Build MarkdownV2 report with partial masking
-        # Logic: 
-        # 1. Use '*' for bold sections and '-' for lists
-        # 2. Use '||' for spoiler sections (around the numbers)
-        # 3. All other text/data must be escaped with escape_markdown_v2
-        
-        title = f"Annual Report: {data['month']} {data['year']}"
-        report = f"*{escape_markdown_v2(title)}*\n\n"
+        # Build simplified MarkdownV2 report with partial masking
+        # For a full block quote, every line must start with '>'
+        title = f"📅 Annual Report: {data['month']} {data['year']}"
+        report = f">*{escape_markdown_v2(title)}*\n>\n"
         
         if data['summary']:
-            report += f"*{escape_markdown_v2('Expenses by Category:')}*\n"
+            report += f">*{escape_markdown_v2('Expenses by Category:')}*\n"
             # Sort by amount descending
             for cat, amt in sorted(data['summary'].items(), key=lambda x: x[1], reverse=True):
+                emoji = CATEGORY_EMOJIS.get(cat, '📦')
                 masked_amt = f"||{escape_markdown_v2(f'฿{amt:,.2f}')}||"
-                report += f"\\- {escape_markdown_v2(cat)}: {masked_amt}\n"
+                report += f">{emoji} {escape_markdown_v2(cat)}: {masked_amt}\n"
         
         total_label = "Total Monthly Expense:"
         total_val = data['total']
         masked_total = f"||{escape_markdown_v2(f'฿{total_val:,.2f}')}||"
-        report += f"\n*{escape_markdown_v2(total_label)}* {masked_total}"
+        
+        report += f">\n>💰 *{escape_markdown_v2(total_label)}* {masked_total}"
         
         # Delete the "Fetching..." message if we have its ID
         if loading_id:

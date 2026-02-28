@@ -125,7 +125,7 @@ def format_report(records):
     if summary:
         report += "*Expenses by Category:*\n"
         for cat, amt in sorted(summary.items(), key=lambda x: x[1], reverse=True):
-            report += f"- {cat}: ฿{amt:,.2 f}\n"
+            report += f"- {cat}: ฿{amt:,.2f}\n"
     
     report += f"\n*Total Expense:* ฿{total_expense:,.2f}"
     report += f"\n*Total Income:* ฿{total_income:,.2f}"
