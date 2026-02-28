@@ -52,11 +52,11 @@ async def on_fetch(request, env, ctx):
         if text.startswith("/start"):
             await handle_start(bot_ctx)
 
-        elif text.startswith("/expense"):
-            await handle_expense(bot_ctx, text)
-
-        elif text.startswith("/income"):
-            await handle_income(bot_ctx, text)
+        # elif text.startswith("/expense"):
+        #     await handle_expense(bot_ctx, text)
+        # 
+        # elif text.startswith("/income"):
+        #     await handle_income(bot_ctx, text)
 
         elif text.startswith("/report"):
             await handle_report(bot_ctx)
