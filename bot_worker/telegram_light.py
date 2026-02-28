@@ -1,5 +1,6 @@
 import json
 import js
+from pyodide.ffi import to_js
 
 async def send_telegram_message(token, chat_id, text, reply_markup=None):
     """
@@ -16,8 +17,16 @@ async def send_telegram_message(token, chat_id, text, reply_markup=None):
     if reply_markup:
         payload['reply_markup'] = reply_markup
         
-    response = await js.fetch(url, method="POST", headers={
-        "Content-Type": "application/json"
-    }, body=json.dumps(payload))
+    options = js.Object.fromEntries(to_js({
+        "method": "POST",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": json.dumps(payload)
+    }))
     
-    return await response.json()
+    response = await js.fetch(url, options)
+    res_json = await response.json()
+    print(f"Telegram API Response: {json.dumps(res_json)}")
+    
+    return res_json

@@ -2,6 +2,7 @@ import json
 import js
 import time
 import base64
+from pyodide.ffi import to_js
 
 class SheetsLightClient:
     """
@@ -79,9 +80,14 @@ class SheetsLightClient:
         signed_jwt = f"{unsigned_jwt}.{signature}"
 
         # Request the access token
-        resp = await js.fetch("https://oauth2.googleapis.com/token", method="POST", headers={
-            "Content-Type": "application/x-www-form-urlencoded"
-        }, body=f"grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion={signed_jwt}")
+        options = js.Object.fromEntries(to_js({
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "body": f"grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion={signed_jwt}"
+        }))
+        resp = await js.fetch("https://oauth2.googleapis.com/token", options)
         
         res_data = await resp.json()
         if "access_token" not in res_data:
@@ -100,10 +106,16 @@ class SheetsLightClient:
             "values": [row_data]
         }
         
-        resp = await js.fetch(url, method="POST", headers={
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }, body=json.dumps(payload))
+        options = js.Object.fromEntries(to_js({
+            "method": "POST",
+            "headers": {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps(payload)
+        }))
+        
+        resp = await js.fetch(url, options)
         
         return await resp.json()
 
@@ -113,9 +125,14 @@ class SheetsLightClient:
         # Use valueRenderOption=UNFORMATTED_VALUE to get numbers instead of formatted strings (like ฿150)
         url = f"https://sheets.googleapis.com/v4/spreadsheets/{self.sheet_id}/values/A:Z?valueRenderOption=UNFORMATTED_VALUE"
         
-        resp = await js.fetch(url, method="GET", headers={
-            "Authorization": f"Bearer {token}"
-        })
+        options = js.Object.fromEntries(to_js({
+            "method": "GET",
+            "headers": {
+                "Authorization": f"Bearer {token}"
+            }
+        }))
+        
+        resp = await js.fetch(url, options)
         
         data = await resp.json()
         values = data.get("values", [])
