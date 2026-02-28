@@ -4,7 +4,13 @@ import logging
 from pyodide.ffi import to_js
 from telegram_light import send_telegram_message
 from sheets_light import SheetsLightClient
-from utils import parse_record_message, format_report
+from context import BotContext
+
+# Import command handlers
+from commands.start import handle_start
+from commands.expense import handle_expense
+from commands.income import handle_income
+from commands.report import handle_report
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -40,43 +46,25 @@ async def on_fetch(request, env, ctx):
             return js.Response.new("Internal Config Error", js.Object.fromEntries(to_js({"status": 500})))
 
         sheets_client = SheetsLightClient(sheets_json, sheet_id)
+        bot_ctx = BotContext(token, chat_id, sheets_client)
 
         # Basic Router
         if text.startswith("/start"):
-            print("Handling /start command")
-            welcome = (
-                "Hi! I'm your Expense Manager Bot (Lightweight Worker Edition).\n\n"
-                "Commands:\n"
-                "/expense <amount> <description> [category]\n"
-                "/income <amount> <description>\n"
-                "/report - Get current month summary"
-            )
-            await send_telegram_message(token, chat_id, welcome)
+            await handle_start(bot_ctx)
 
-        elif text.startswith("/expense") or text.startswith("/income"):
-            is_expense = text.startswith("/expense")
-            print(f"Handling {'/expense' if is_expense else '/income'} command")
-            record = parse_record_message(text, is_expense=is_expense)
-            
-            if not record:
-                error = "Invalid format. Use: /expense <amount> <description> [category]" if is_expense else "Invalid format. Use: /income <amount> <description>"
-                await send_telegram_message(token, chat_id, error)
-            else:
-                row = [record['date'], record['category'], record['description'], record['amount'], record['uncleared']]
-                await sheets_client.append_row(row)
-                status = "expense" if is_expense else "income"
-                await send_telegram_message(token, chat_id, f"✅ Recorded {status}: ฿{record['amount']} for {record['description']}")
+        # elif text.startswith("/expense"):
+        #     await handle_expense(bot_ctx, text)
+        # 
+        # elif text.startswith("/income"):
+        #     await handle_income(bot_ctx, text)
 
         elif text.startswith("/report"):
-            print("Handling /report command")
-            await send_telegram_message(token, chat_id, "Fetching report... please wait.")
-            records = await sheets_client.get_all_records()
-            report_text = format_report(records)
-            await send_telegram_message(token, chat_id, report_text)
+            await handle_report(bot_ctx)
 
         return js.Response.new("OK", js.Object.fromEntries(to_js({"status": 200})))
 
     except Exception as e:
-        # In a real worker, we might want to log this to Cloudflare Logs
+        # Important: Return 200 OK to Telegram even on error to stop retries.
+        # Errors should be debugged via Cloudflare Workers logs.
         print(f"Error handling request: {e}")
-        return js.Response.new(f"Internal Error: {e}", js.Object.fromEntries(to_js({"status": 500})))
+        return js.Response.new("OK", js.Object.fromEntries(to_js({"status": 200})))
