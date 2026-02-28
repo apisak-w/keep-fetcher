@@ -1,6 +1,37 @@
 import re
 from datetime import datetime
-from shared.config.constants import EXPENSE_CATEGORIES
+
+EXPENSE_CATEGORIES = {
+    'Shopping': [
+        'book', 'gift', 'clothes', 'shoes', 'bag', 'amazon', 'lazada', 
+        'shopee', 'sofa', 'tuya', 'adapter', 'phone', 'belt', 'coffee table', 
+        'battery', 'key', 'ladle', 'lamp', 'perfume', 'rug', 'stairs', 
+        'home appliance', 'housewares', 'shirt', 'shorts', 'toothpaste'
+    ],
+    'Food': [
+        'food', 'lunch', 'dinner', 'breakfast', 'snack', 'meal', 'drink'
+    ],
+    'Transport': [
+        'mrt', 'bts', 'taxi', 'motorcycle', 'bus', 'rabbit', 'grab', 'uber', 
+        'train', 'flight', 'tsubaru', 'airport', 'express', 'two row car', 
+        'arl', 'srt'
+    ],
+    'Utilities': [
+        'mobile', 'top-up', 'mobile top up', 'icloud', 'internet', 'bill', 
+        'subscription', 'netflix', 'spotify'
+    ],
+    'Entertainment': [
+        'movie', 'cinema', 'game', 'concert', 'ticket', 'show', 'party', 
+        'bar', 'club', 'youtube', 'disney', 'badminton'
+    ],
+    'Personal': [
+        'haircut', 'gym', 'sport', 'massage', 'spa', 'doctor', 'medicine', 
+        'driving', 'medical', 'personal care'
+    ],
+    'Housing/Car': [
+        'car', 'rent', 'condo', 'electricity', 'water', 'home', 'house'
+    ],
+}
 
 def parse_record_message(text, is_expense=True):
     """
