@@ -13,11 +13,35 @@ CATEGORY_EMOJIS = {
     'Income': '💰'
 }
 
-async def handle_report(ctx):
+async def handle_report(ctx, text="/report"):
     """Handles the /report command using the Pivot Annual Report."""
-    print("Handling /report command")
+    print(f"Handling /report command with text: {text}")
+    
+    # Parse month-year if provided: /report 01-2026
+    target_month = None
+    target_year = None
+    period_label = "current month"
+    
+    parts = text.split()
+    if len(parts) > 1:
+        arg = parts[1]
+        import re
+        match = re.match(r"(\d{1,2})-(\d{4})", arg)
+        if match:
+            m_str, y_str = match.groups()
+            try:
+                m_int = int(m_str)
+                if 1 <= m_int <= 12:
+                    from datetime import datetime
+                    # Convert to 'Jan', 'Feb', etc.
+                    target_month = datetime(2000, m_int, 1).strftime("%b")
+                    target_year = y_str
+                    period_label = f"{target_month} {target_year}"
+            except ValueError:
+                pass
+
     # Send loading message and store the response to get message_id
-    loading_msg = await ctx.reply("Fetching annual report... please wait.")
+    loading_msg = await ctx.reply(f"Fetching report for {period_label}... please wait.")
     loading_id = loading_msg.get("result", {}).get("message_id")
     
     try:
@@ -25,9 +49,9 @@ async def handle_report(ctx):
         range_name = "'(Pivot) Annual Report'!A:K"
         values = await ctx.sheets_client.get_values(range_name)
         
-        data = get_pivot_report_data(values)
+        data = get_pivot_report_data(values, target_month=target_month, target_year=target_year)
         if not data:
-            error_msg = "No records found for this period."
+            error_msg = f"No records found for {period_label}."
             if loading_id:
                 await ctx.delete_message(loading_id)
             await ctx.reply(error_msg)
@@ -35,7 +59,7 @@ async def handle_report(ctx):
 
         # Build simplified MarkdownV2 report with partial masking
         # For a full block quote, every line must start with '>'
-        title = f"📅 Annual Report: {data['month']} {data['year']}"
+        title = f"📅 Report: {data['month']} {data['year']}"
         report = f">*{escape_markdown_v2(title)}*\n>\n"
         
         if data['summary']:
