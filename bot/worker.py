@@ -1,5 +1,6 @@
 import json
 import logging
+import js
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler
 from shared.libs.sheets_client import SheetsClient
@@ -16,7 +17,11 @@ async def on_fetch(request, env, ctx):
     Cloudflare Worker entry point.
     """
     # Initialize the app with the token from environment variables
+    # Cloudflare secrets are available on the 'env' object
     token = env.TELEGRAM_BOT_TOKEN
+    if not token:
+        return js.Response.new("TELEGRAM_BOT_TOKEN not set", status=500)
+
     application = ApplicationBuilder().token(token).build()
 
     # Add handlers
@@ -30,26 +35,19 @@ async def on_fetch(request, env, ctx):
         try:
             # Parse the update from the request body
             data = await request.json()
+            # Convert to dict if it's already parsed or handle raw
+            if isinstance(data, str):
+                data = json.loads(data)
+                
             update = Update.de_json(data, application.bot)
             
-            # Process the update
-            # Note: In a real worker environment, we initialize the app per request
-            # and process the update directly.
             await application.initialize()
             await application.process_update(update)
             await application.shutdown()
 
-            return Response.new("OK", status=200)
+            return js.Response.new("OK", status=200)
         except Exception as e:
             logging.error(f"Error processing update: {e}")
-            return Response.new(f"Error: {e}", status=500)
+            return js.Response.new(f"Error: {e}", status=500)
             
-    return Response.new("Method Not Allowed", status=405)
-
-# Cloudflare Workers Python entry point
-class Response:
-    """Helper to match Cloudflare's Response object."""
-    @staticmethod
-    def new(body, status=200, headers=None):
-        import js
-        return js.Response.new(body, status=status, headers=headers)
+    return js.Response.new("Method Not Allowed", status=405)
