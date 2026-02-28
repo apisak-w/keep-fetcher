@@ -1,0 +1,71 @@
+import json
+import js
+import logging
+from telegram_light import send_telegram_message
+from sheets_light import SheetsLightClient
+from utils import parse_record_message, format_report
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+
+async def on_fetch(request, env, ctx):
+    """
+    Cloudflare Worker entry point - Lightweight Webhook Version.
+    """
+    if request.method != "POST":
+        return js.Response.new("Method Not Allowed", status=405)
+
+    try:
+        data = await request.json()
+        if isinstance(data, str):
+            data = json.loads(data)
+            
+        message = data.get("message", {})
+        text = message.get("text", "")
+        chat_id = message.get("chat", {}).get("id")
+        
+        if not chat_id:
+            return js.Response.new("OK", status=200)
+
+        token = env.TELEGRAM_BOT_TOKEN
+        sheets_json = env.GOOGLE_SERVICE_ACCOUNT_JSON
+        sheet_id = env.GOOGLE_SHEET_ID
+
+        sheets_client = SheetsLightClient(sheets_json, sheet_id)
+
+        # Basic Router
+        if text.startswith("/start"):
+            welcome = (
+                "Hi! I'm your Expense Manager Bot (Lightweight Worker Edition).\n\n"
+                "Commands:\n"
+                "/expense <amount> <description> [category]\n"
+                "/income <amount> <description>\n"
+                "/report - Get current month summary"
+            )
+            await send_telegram_message(token, chat_id, welcome)
+
+        elif text.startswith("/expense") or text.startswith("/income"):
+            is_expense = text.startswith("/expense")
+            record = parse_record_message(text, is_expense=is_expense)
+            
+            if not record:
+                error = "Invalid format. Use: /expense <amount> <description> [category]" if is_expense else "Invalid format. Use: /income <amount> <description>"
+                await send_telegram_message(token, chat_id, error)
+            else:
+                row = [record['date'], record['category'], record['description'], record['amount'], record['uncleared']]
+                await sheets_client.append_row(row)
+                status = "expense" if is_expense else "income"
+                await send_telegram_message(token, chat_id, f"✅ Recorded {status}: ฿{record['amount']} for {record['description']}")
+
+        elif text.startswith("/report"):
+            await send_telegram_message(token, chat_id, "Fetching report... please wait.")
+            records = await sheets_client.get_all_records()
+            report_text = format_report(records)
+            await send_telegram_message(token, chat_id, report_text)
+
+        return js.Response.new("OK", status=200)
+
+    except Exception as e:
+        # In a real worker, we might want to log this to Cloudflare Logs
+        print(f"Error: {e}")
+        return js.Response.new(f"Internal Error: {e}", status=500)

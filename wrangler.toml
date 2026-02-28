@@ -1,0 +1,27 @@
+name = "keep-expense-manager-bot"
+main = "bot_worker/worker.py"
+compatibility_date = "2024-04-01"
+
+compatibility_flags = [ "python_workers" ]
+
+[vars]
+# Add non-sensitive variables here if needed
+# Sensitive variables should be set via `wrangler secret put`
+
+[env.production]
+# Production specific overrides
+
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = true
+persist = true
+head_sampling_rate = 1
