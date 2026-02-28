@@ -1,4 +1,4 @@
-from telegram_light import send_telegram_message
+from telegram_light import send_telegram_message, delete_telegram_message
 
 class BotContext:
     """
@@ -10,6 +10,10 @@ class BotContext:
         self.chat_id = chat_id
         self.sheets_client = sheets_client
 
-    async def reply(self, text):
+    async def reply(self, text, parse_mode='Markdown'):
         """Helper to send a message back to the current chat."""
-        await send_telegram_message(self.token, self.chat_id, text)
+        return await send_telegram_message(self.token, self.chat_id, text, parse_mode=parse_mode)
+
+    async def delete_message(self, message_id):
+        """Helper to delete a message in the current chat."""
+        return await delete_telegram_message(self.token, self.chat_id, message_id)

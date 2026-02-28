@@ -54,12 +54,17 @@ class SheetsLightClient:
         for i, b in enumerate(pk_buffer):
             key_data[i] = b
             
+        # Use JSON.parse to ensure we pass native JS objects/arrays
+        # as Web Crypto API can be picky about Pyodide proxies.
+        algo = js.JSON.parse('{"name": "RSASSA-PKCS1-v1_5", "hash": "SHA-256"}')
+        usages = js.JSON.parse('["sign"]')
+        
         key = await js.crypto.subtle.importKey(
             "pkcs8",
             key_data,
-            {"name": "RSASSA-PKCS1-v1_5", "hash": "SHA-256"},
+            algo,
             False,
-            ["sign"]
+            usages
         )
         
         # 3. Sign the content
@@ -67,8 +72,9 @@ class SheetsLightClient:
         for i, c in enumerate(unsigned_jwt):
             data_to_sign[i] = ord(c)
             
+        sign_algo = js.JSON.parse('{"name": "RSASSA-PKCS1-v1_5"}')
         signature_buffer = await js.crypto.subtle.sign(
-            "RSASSA-PKCS1-v1_5",
+            sign_algo,
             key,
             data_to_sign
         )
@@ -89,7 +95,7 @@ class SheetsLightClient:
         }))
         resp = await js.fetch("https://oauth2.googleapis.com/token", options)
         
-        res_data = await resp.json()
+        res_data = (await resp.json()).to_py()
         if "access_token" not in res_data:
             raise Exception(f"Failed to get access token: {res_data}")
             
@@ -117,13 +123,12 @@ class SheetsLightClient:
         
         resp = await js.fetch(url, options)
         
-        return await resp.json()
+        return (await resp.json()).to_py()
 
-    async def get_all_records(self):
-        """Fetch all data from the sheet."""
+    async def get_values(self, range_name):
+        """Fetch raw values from a specific range/sheet."""
         token = await self._get_access_token()
-        # Use valueRenderOption=UNFORMATTED_VALUE to get numbers instead of formatted strings (like ฿150)
-        url = f"https://sheets.googleapis.com/v4/spreadsheets/{self.sheet_id}/values/A:Z?valueRenderOption=UNFORMATTED_VALUE"
+        url = f"https://sheets.googleapis.com/v4/spreadsheets/{self.sheet_id}/values/{range_name}?valueRenderOption=UNFORMATTED_VALUE"
         
         options = js.Object.fromEntries(to_js({
             "method": "GET",
@@ -133,9 +138,12 @@ class SheetsLightClient:
         }))
         
         resp = await js.fetch(url, options)
-        
-        data = await resp.json()
-        values = data.get("values", [])
+        data = (await resp.json()).to_py()
+        return data.get("values", [])
+
+    async def get_all_records(self):
+        """Fetch all data from the first sheet and return as list of dicts."""
+        values = await self.get_values("A:Z")
         if not values:
             return []
             
