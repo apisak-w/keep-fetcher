@@ -6,6 +6,7 @@ async def handle_start(ctx):
         "Commands:\n"
         "/expense <amount> <description> [category]\n"
         "/income <amount> <description>\n"
-        "/report - Get current month summary"
+        "/report - Get current month summary\n"
+        "/report [mm-yyyy] - Get specific month summary"
     )
     await ctx.reply(welcome)

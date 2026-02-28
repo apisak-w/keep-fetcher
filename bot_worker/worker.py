@@ -59,7 +59,7 @@ async def on_fetch(request, env, ctx):
         #     await handle_income(bot_ctx, text)
 
         elif text.startswith("/report"):
-            await handle_report(bot_ctx)
+            await handle_report(bot_ctx, text)
 
         return js.Response.new("OK", js.Object.fromEntries(to_js({"status": 200})))
 

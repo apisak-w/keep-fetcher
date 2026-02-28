@@ -133,7 +133,7 @@ def format_report(records):
     
     return report
 
-def get_pivot_report_data(values):
+def get_pivot_report_data(values, target_month=None, target_year=None):
     """
     Extract structured data from pivot table values.
     Returns: {
@@ -152,8 +152,10 @@ def get_pivot_report_data(values):
     categories = headers[2:-1]
     
     now = datetime.now()
-    target_year = now.strftime("%Y")
-    target_month = now.strftime("%b") # e.g., 'Feb'
+    if not target_year:
+        target_year = now.strftime("%Y")
+    if not target_month:
+        target_month = now.strftime("%b") # e.g., 'Feb'
     
     current_year = ""
     target_row = None
