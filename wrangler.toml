@@ -15,3 +15,7 @@ compatibility_flags = [ "python_workers" ]
 enabled = true
 head_sampling_rate = 1
 invocation_logs = true
+
+[[kv_namespaces]]
+binding = "BOT_USERS_KV"
+id = "0665d7944a85454480ff73eaa8cefe48"
